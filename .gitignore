@@ -1,0 +1,37 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Large Datasets (Excluding raw data to keep repo size small)
+*.xlsx
+*.csv
+*.json
+!bad_words.json
+!overrides.json
+!package.json
+
+# Machine Learning Models
+models/
+*.h5
+*.pkl
+*.joblib
+
+# Mobile App Dependencies
+mobile_app/node_modules/
+mobile_app/.expo/
+mobile_app/web-build/
+
+# IDE files
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db

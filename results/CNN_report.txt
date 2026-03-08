@@ -1,0 +1,13 @@
+CNN Evaluation
+Accuracy: 0.8444
+
+              precision    recall  f1-score   support
+
+     Neutral       0.90      0.85      0.88      5451
+ Hate Speech       0.74      0.83      0.78      3198
+     Abusive       0.89      0.87      0.88      1993
+   Offensive       0.84      0.73      0.78       466
+
+    accuracy                           0.84     11108
+   macro avg       0.84      0.82      0.83     11108
+weighted avg       0.85      0.84      0.85     11108

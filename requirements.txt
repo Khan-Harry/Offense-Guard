@@ -1,0 +1,14 @@
+flask
+pandas
+numpy
+tensorflow-cpu
+scikit-learn
+gensim
+openpyxl
+nltk
+matplotlib
+seaborn
+flask-cors
+pymongo
+PyJWT
+werkzeug

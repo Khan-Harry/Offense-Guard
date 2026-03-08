@@ -1,0 +1,13 @@
+LSTM Evaluation
+Accuracy: 0.8127
+
+              precision    recall  f1-score   support
+
+     Neutral       0.90      0.86      0.88      5451
+ Hate Speech       0.76      0.80      0.78      3198
+     Abusive       0.70      0.89      0.78      1993
+   Offensive       0.00      0.00      0.00       466
+
+    accuracy                           0.81     11108
+   macro avg       0.59      0.64      0.61     11108
+weighted avg       0.79      0.81      0.80     11108
