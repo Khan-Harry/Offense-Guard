@@ -231,6 +231,9 @@ def predict():
             'timestamp': datetime.utcnow().isoformat()
         }
         
+        # Save prediction to DB for history
+        db['predictions'].insert_one(result.copy())
+        
         return jsonify(result)
     
     except Exception as e:
@@ -276,12 +279,17 @@ def stats():
     Get basic usage statistics
     """
     try:
-        total = feedback_col.count_documents({})
-        # Mocking some counts if feedback is sparse, or just returns real data
+        pred_col = db['predictions']
+        total = pred_col.count_documents({})
+        offensive = pred_col.count_documents({'prediction': 'offensive'})
+        
+        recent_history = list(pred_col.find({}, {'_id': 0}).sort('timestamp', -1).limit(10))
+        
         return jsonify({
-            'total_predictions': total + 120,  # Adding mock base for demo feel
-            'offensive_count': int(total * 0.3) + 15,
-            'status': 'active'
+            'total_predictions': total,  
+            'offensive_count': offensive,
+            'status': 'active',
+            'history': recent_history
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
