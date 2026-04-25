@@ -1,37 +1,89 @@
-# Virtual Environment
+# =====================================
+# BEST .gitignore for Your FYP Project
+# Push almost everything important
+# Ignore only unnecessary/generated files
+# =====================================
+
+# -----------------
+# Python Virtual Environment
+# -----------------
 .venv/
 venv/
 ENV/
 env/
 
-# Python cache
+# -----------------
+# Python Cache Files
+# -----------------
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Large Datasets (Excluding raw data to keep repo size small)
-*.xlsx
-*.csv
-*.json
-!bad_words.json
-!overrides.json
-!package.json
+# -----------------
+# Jupyter Notebook Checkpoints
+# -----------------
+.ipynb_checkpoints/
 
-# Machine Learning Models
-models/
-*.h5
-*.pkl
-*.joblib
+# -----------------
+# OS / System Files
+# -----------------
+.DS_Store
+Thumbs.db
 
-# Mobile App Dependencies
-mobile_app/node_modules/
-mobile_app/.expo/
-mobile_app/web-build/
-
-# IDE files
+# -----------------
+# IDE / Editor Settings
+# -----------------
 .vscode/
 .idea/
 
-# System files
-.DS_Store
-Thumbs.db
+# -----------------
+# Logs / Temporary Files
+# -----------------
+*.log
+*.tmp
+*.temp
+
+# -----------------
+# Mobile App Generated Files
+# -----------------
+mobile_app/node_modules/
+mobile_app/.expo/
+mobile_app/web-build/
+mobile_app/dist/
+
+# -----------------
+# Build / Distribution Files
+# -----------------
+build/
+dist/
+*.apk
+*.aab
+
+# -----------------
+# Secrets / Environment Files
+# -----------------
+.env
+.env.local
+.env.*
+
+# -----------------
+# Large Raw Datasets Only
+# (Keep local / share manually)
+# -----------------
+datasets/
+data/raw/
+
+# -----------------
+# Keep ALL important files allowed:
+# .json
+# .csv
+# .xlsx
+# .pkl
+# .joblib
+# .h5
+# models/
+# source code
+# requirements.txt
+# package.json
+# README.md
+# -----------------
