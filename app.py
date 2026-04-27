@@ -151,13 +151,122 @@ def login():
             'exp': datetime.utcnow() + timedelta(hours=24)
         }, app.secret_key, algorithm="HS256")
         
-        return jsonify({'token': token})
+        return jsonify({
+            'token': token,
+            'username': user['username'],
+            'is_admin': user.get('is_admin', False)
+        })
         
     return jsonify({'message': 'Invalid credentials'}), 401
 
+
+# --- Admin Middleware ---
+def admin_required(f):
+    @wraps(f)
+    @token_required
+    def decorated(current_user, *args, **kwargs):
+        if not current_user.get('is_admin', False):
+            return jsonify({'message': 'Admin permission required!'}), 403
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+# --- Admin Routes ---
+@app.route('/api/admin/stats', methods=['GET'])
+@admin_required
+def admin_stats(current_user):
+    """Get global system statistics for admin"""
+    try:
+        total_users = users_col.count_documents({})
+        total_feedback = feedback_col.count_documents({})
+        pending_feedback = feedback_col.count_documents({'verified': {'$ne': True}})
+        total_predictions = db['predictions'].count_documents({})
+        
+        # Get 10 most recent users
+        recent_users = list(users_col.find({}, {'password': 0}).sort('created_at', -1).limit(10))
+        for user in recent_users:
+            user['_id'] = str(user['_id'])
+            if 'created_at' in user and isinstance(user['created_at'], datetime):
+                user['created_at'] = user['created_at'].isoformat()
+
+        return jsonify({
+            'total_users': total_users,
+            'total_feedback': total_feedback,
+            'pending_feedback': pending_feedback,
+            'total_predictions': total_predictions,
+            'recent_users': recent_users,
+            'models_loaded': {
+                'svm': model is not None,
+                'dl': lstm_model is not None
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/feedback/list', methods=['GET'])
+@admin_required
+def list_feedback(current_user):
+    """List all feedback for verification"""
+    try:
+        # Get unverified feedback first
+        feedback = list(feedback_col.find().sort('timestamp', -1).limit(50))
+        for f in feedback:
+            f['_id'] = str(f['_id'])
+            if 'timestamp' in f and isinstance(f['timestamp'], datetime):
+                f['timestamp'] = f['timestamp'].isoformat()
+        return jsonify(feedback)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/feedback/verify', methods=['POST'])
+@admin_required
+def verify_feedback(current_user):
+    """Verify or reject user feedback"""
+    try:
+        data = request.get_json()
+        if not data or not data.get('feedback_id'):
+            return jsonify({'error': 'Feedback ID required'}), 400
+            
+        from bson.objectid import ObjectId
+        action = data.get('action') # 'verify' or 'reject'
+        
+        if action == 'verify':
+            feedback_col.update_one(
+                {'_id': ObjectId(data['feedback_id'])},
+                {'$set': {'verified': True, 'retrained': False}}
+            )
+        else:
+            feedback_col.delete_one({'_id': ObjectId(data['feedback_id'])})
+            
+        return jsonify({'message': f'Feedback {action}ed successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/admin/retrain', methods=['POST'])
+@admin_required
+def trigger_retrain(current_user):
+    """Manually trigger the retraining process"""
+    try:
+        import subprocess
+        # Run retrain_models.py as a separate process
+        process = subprocess.Popen(['python', 'retrain_models.py'], 
+                                   stdout=subprocess.PIPE, 
+                                   stderr=subprocess.PIPE,
+                                   text=True)
+        stdout, stderr = process.communicate()
+        
+        if process.returncode == 0:
+            # Reload models in the current process
+            load_all_models()
+            return jsonify({'message': 'Retraining successful', 'output': stdout})
+        else:
+            return jsonify({'error': 'Retraining failed', 'details': stderr}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # --- API Routes ---
 @app.route('/predict', methods=['POST'])
-def predict():
+@token_required
+def predict(current_user):
     """
     Predict if text is offensive or not
     Request JSON: { "text": "..." }
@@ -231,7 +340,8 @@ def predict():
             'timestamp': datetime.utcnow().isoformat()
         }
         
-        # Save prediction to DB for history
+        # Save prediction to DB for history (associated with user)
+        result['username'] = current_user['username']
         db['predictions'].insert_one(result.copy())
         
         return jsonify(result)
@@ -274,16 +384,17 @@ def health():
     })
 
 @app.route('/stats', methods=['GET'])
-def stats():
+@token_required
+def stats(current_user):
     """
-    Get basic usage statistics
+    Get basic usage statistics for the current user
     """
     try:
         pred_col = db['predictions']
-        total = pred_col.count_documents({})
-        offensive = pred_col.count_documents({'prediction': 'offensive'})
+        total = pred_col.count_documents({'username': current_user['username']})
+        offensive = pred_col.count_documents({'username': current_user['username'], 'prediction': 'offensive'})
         
-        recent_history = list(pred_col.find({}, {'_id': 0}).sort('timestamp', -1).limit(10))
+        recent_history = list(pred_col.find({'username': current_user['username']}, {'_id': 0}).sort('timestamp', -1).limit(20))
         
         return jsonify({
             'total_predictions': total,  
@@ -291,6 +402,33 @@ def stats():
             'status': 'active',
             'history': recent_history
         })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/history/delete', methods=['POST'])
+@token_required
+def delete_history_item(current_user):
+    """Delete a specific history item for the current user"""
+    try:
+        data = request.get_json()
+        if not data or not data.get('timestamp'):
+            return jsonify({'error': 'Timestamp required'}), 400
+            
+        db['predictions'].delete_one({
+            'username': current_user['username'],
+            'timestamp': data.get('timestamp')
+        })
+        return jsonify({'message': 'Item deleted successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/history/clear', methods=['POST'])
+@token_required
+def clear_history(current_user):
+    """Clear all history for the current user"""
+    try:
+        db['predictions'].delete_many({'username': current_user['username']})
+        return jsonify({'message': 'History cleared successfully'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
