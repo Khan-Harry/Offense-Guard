@@ -48,6 +48,19 @@ vectorizer = None
 cnn_model = None
 lstm_model = None
 tokenizer = None
+extreme_words = []
+
+def load_extreme_words():
+    """Load the manual blacklist of extreme profanities"""
+    global extreme_words
+    try:
+        with open("bad_words.json", "r", encoding='utf-8') as f:
+            data = json.load(f)
+            extreme_words = data.get("extreme_bad_words", [])
+        print(f"✓ Loaded {len(extreme_words)} extreme profanities")
+    except Exception as e:
+        print(f"✗ Could not load extreme words: {e}")
+        extreme_words = []
 
 def load_all_models():
     """Load all available models and experimental DL architectures"""
@@ -89,7 +102,8 @@ def load_all_models():
     except Exception as e:
         print(f"ℹ️ Deep learning models not yet available or loading failed: {e}")
 
-# Load models on startup
+# Load models and assets on startup
+load_extreme_words()
 load_all_models()
 
 # --- Auth Middleware ---
@@ -300,8 +314,20 @@ def predict(current_user):
         prediction_label = "non-offensive"
         confidence = 0.8
         trigger_source = "None"
+
+        # 1. Tier 1: Extreme Profanity Check (100% Offensive Words)
+        # This flags words that are offensive regardless of context
+        text_lower = text.lower()
+        for word in extreme_words:
+            if word in text_lower:
+                return jsonify({
+                    'text': text,
+                    'prediction': 'offensive',
+                    'confidence': 1.0,
+                    'model_used': 'Tier 1: Extreme Profanity'
+                })
         
-        # 1. Use SVM as Primary
+        # 2. Tier 2: SVM (Fast Classification)
         if model and vectorizer:
             X = vectorizer.transform([text])
             prediction = model.predict(X)[0]
