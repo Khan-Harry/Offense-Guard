@@ -176,24 +176,26 @@ except Exception as e:
     print(f"✗ Error loading T1 dataset: {e}")
 
 # 10. Offensive-24K-T2 (Target Identification)
+# Tag=1 means targeted insult (offensive), Tag=0 means untargeted (can be non-offensive)
 try:
     df_t2 = pd.read_excel(os.path.join(BASE_PATH, "Offensive-24K-T2(Target Identification).xlsx"))
     df_t2['text'] = df_t2['Tweet'].apply(clean_text)
-    df_t2['label'] = 1  # All are offensive tweets
+    df_t2['label'] = df_t2['Tag'].apply(lambda x: 1 if str(x).strip() in ['1', 'TIN'] or x == 1 else 0)
     df_t2 = df_t2.dropna(subset=['text', 'label'])
     all_dfs.append(df_t2[['text', 'label']])
-    print(f"✓ Loaded Offensive-24K-T2: {len(df_t2)} samples (all offensive)")
+    print(f"✓ Loaded Offensive-24K-T2: {len(df_t2)} samples (Offensive/Targeted: {sum(df_t2['label']==1)}, Safe/Untargeted: {sum(df_t2['label']==0)})")
 except Exception as e:
     print(f"✗ Error loading T2 dataset: {e}")
 
 # 11. Offensive-24K-T3 (Target Type Classification)
+# All T3 samples are offensive tweets (sub-categories of offensive target types)
 try:
     df_t3 = pd.read_excel(os.path.join(BASE_PATH, "Offensive-24K-T3(Target Type Classification).xlsx"))
     df_t3['text'] = df_t3['Tweet'].apply(clean_text)
-    df_t3['label'] = 1  # All are offensive tweets
+    df_t3['label'] = 1  # All are offensive tweets targeting individuals/groups/organizations
     df_t3 = df_t3.dropna(subset=['text', 'label'])
     all_dfs.append(df_t3[['text', 'label']])
-    print(f"✓ Loaded Offensive-24K-T3: {len(df_t3)} samples (all offensive)")
+    print(f"✓ Loaded Offensive-24K-T3: {len(df_t3)} samples (all offensive/targeted)")
 except Exception as e:
     print(f"✗ Error loading T3 dataset: {e}")
 
