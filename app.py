@@ -17,8 +17,8 @@ import numpy as np
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'super_secret_key_for_fyp_project')
-# Enable CORS for all origins, allowing mobile, web, and emulator devices to connect
-CORS(app, resources={r"/*": {"origins": "*"}})
+# Enable CORS for all origins, headers, and methods
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 @app.before_request
 def log_request_info():
@@ -30,7 +30,7 @@ def log_request_info():
 # MongoDB Configuration
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1000)
     db = client['offense_guard']
     users_col = db['users']
     feedback_col = db['feedback']
@@ -141,12 +141,12 @@ def predict_text_multi_model(text):
     probs = {}
     
     # ── 1. Machine Learning Models (TF-IDF) ──
-    if vectorizer:
+    if vectorizer is not None:
         try:
             X = vectorizer.transform([cleaned])
             
             # SVM
-            if svm_model:
+            if svm_model is not None:
                 if hasattr(svm_model, 'predict_proba'):
                     p_svm = float(svm_model.predict_proba(X)[0][1])
                 else:
@@ -161,7 +161,7 @@ def predict_text_multi_model(text):
                 }
             
             # Naive Bayes
-            if nb_model:
+            if nb_model is not None:
                 p_nb = float(nb_model.predict_proba(X)[0][1])
                 probs['naive_bayes'] = p_nb
                 models_scores['naive_bayes'] = {
@@ -172,7 +172,7 @@ def predict_text_multi_model(text):
                 }
                 
             # Random Forest
-            if rf_model:
+            if rf_model is not None:
                 p_rf = float(rf_model.predict_proba(X)[0][1])
                 probs['random_forest'] = p_rf
                 models_scores['random_forest'] = {
@@ -185,14 +185,14 @@ def predict_text_multi_model(text):
             print(f"ML Prediction Error: {e}")
 
     # ── 2. Deep Learning Models (CNN, Bi-LSTM) ──
-    if tokenizer:
+    if tokenizer is not None:
         try:
             from tensorflow.keras.preprocessing.sequence import pad_sequences
             seq = tokenizer.texts_to_sequences([cleaned])
             padded = pad_sequences(seq, maxlen=100, padding='post', truncating='post')
             
             # 1D CNN
-            if cnn_model:
+            if cnn_model is not None:
                 p_cnn = float(cnn_model.predict(padded, verbose=0)[0][1])
                 probs['cnn'] = p_cnn
                 models_scores['cnn'] = {
@@ -203,7 +203,7 @@ def predict_text_multi_model(text):
                 }
                 
             # Bi-LSTM
-            if lstm_model:
+            if lstm_model is not None:
                 p_lstm = float(lstm_model.predict(padded, verbose=0)[0][1])
                 probs['lstm'] = p_lstm
                 models_scores['lstm'] = {
@@ -254,7 +254,9 @@ def get_optional_user():
         return None
     try:
         data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
-        return users_col.find_one({'username': data['username']}) if users_col else {'username': data['username']}
+        if users_col is not None:
+            return users_col.find_one({'username': data['username']})
+        return {'username': data['username']}
     except Exception:
         return None
 
@@ -270,7 +272,10 @@ def token_required(f):
         
         try:
             data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
-            current_user = users_col.find_one({'username': data['username']}) if users_col else {'username': data['username']}
+            if users_col is not None:
+                current_user = users_col.find_one({'username': data['username']})
+            else:
+                current_user = {'username': data['username']}
             if not current_user:
                 return jsonify({'message': 'User not found!'}), 401
         except Exception as e:
@@ -286,7 +291,7 @@ def signup():
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({'message': 'Valid username and password required'}), 400
         
-    if users_col and users_col.find_one({'username': data['username']}):
+    if users_col is not None and users_col.find_one({'username': data['username']}):
         return jsonify({'message': 'Username already exists'}), 400
         
     hashed_password = generate_password_hash(data['password'])
@@ -296,7 +301,7 @@ def signup():
         'is_admin': data.get('is_admin', False),
         'created_at': datetime.utcnow()
     }
-    if users_col:
+    if users_col is not None:
         users_col.insert_one(user_data)
     
     return jsonify({'message': 'User created successfully'}), 201
@@ -307,7 +312,7 @@ def login():
     if not auth or not auth.get('username') or not auth.get('password'):
         return jsonify({'message': 'Could not verify'}), 401
         
-    if not users_col:
+    if users_col is None:
         return jsonify({'message': 'Database not connected'}), 500
         
     user = users_col.find_one({'username': auth['username']})
@@ -344,12 +349,12 @@ def admin_required(f):
 def admin_stats(current_user):
     """Get global system statistics for admin"""
     try:
-        total_users = users_col.count_documents({}) if users_col else 0
-        total_feedback = feedback_col.count_documents({}) if feedback_col else 0
-        pending_feedback = feedback_col.count_documents({'verified': {'$ne': True}}) if feedback_col else 0
-        total_predictions = predictions_col.count_documents({}) if predictions_col else 0
+        total_users = users_col.count_documents({}) if users_col is not None else 0
+        total_feedback = feedback_col.count_documents({}) if feedback_col is not None else 0
+        pending_feedback = feedback_col.count_documents({'verified': {'$ne': True}}) if feedback_col is not None else 0
+        total_predictions = predictions_col.count_documents({}) if predictions_col is not None else 0
         
-        recent_users = list(users_col.find({}, {'password': 0}).sort('created_at', -1).limit(10)) if users_col else []
+        recent_users = list(users_col.find({}, {'password': 0}).sort('created_at', -1).limit(10)) if users_col is not None else []
         for user in recent_users:
             user['_id'] = str(user['_id'])
             if 'created_at' in user and isinstance(user['created_at'], datetime):
@@ -377,7 +382,7 @@ def admin_stats(current_user):
 def list_feedback(current_user):
     """List all feedback for verification"""
     try:
-        feedback = list(feedback_col.find().sort('timestamp', -1).limit(50)) if feedback_col else []
+        feedback = list(feedback_col.find().sort('timestamp', -1).limit(50)) if feedback_col is not None else []
         for f in feedback:
             f['_id'] = str(f['_id'])
             if 'timestamp' in f and isinstance(f['timestamp'], datetime):
@@ -398,7 +403,7 @@ def verify_feedback(current_user):
         from bson.objectid import ObjectId
         action = data.get('action')
         
-        if feedback_col:
+        if feedback_col is not None:
             if action == 'verify':
                 feedback_col.update_one(
                     {'_id': ObjectId(data['feedback_id'])},
@@ -494,7 +499,7 @@ def predict():
         
         # 3. Log prediction to DB for history if user authenticated
         current_user = get_optional_user()
-        if predictions_col and current_user and isinstance(current_user, dict):
+        if predictions_col is not None and current_user is not None and isinstance(current_user, dict):
             try:
                 log_item = result.copy()
                 log_item['username'] = current_user.get('username', 'anonymous')
@@ -525,7 +530,7 @@ def feedback():
             'retrained': False
         }
         
-        if feedback_col:
+        if feedback_col is not None:
             feedback_col.insert_one(feedback_entry)
         return jsonify({'message': 'Feedback received'})
     except Exception as e:
@@ -545,16 +550,17 @@ def health():
     })
 
 @app.route('/stats', methods=['GET'])
-@token_required
-def stats(current_user):
-    """Get usage statistics for the current user"""
+def stats():
+    """Get usage statistics for the current user (optional token)"""
     try:
-        if not predictions_col:
+        current_user = get_optional_user()
+        if predictions_col is None or current_user is None or not isinstance(current_user, dict):
             return jsonify({'total_predictions': 0, 'offensive_count': 0, 'status': 'active', 'history': []})
             
-        total = predictions_col.count_documents({'username': current_user['username']})
-        offensive = predictions_col.count_documents({'username': current_user['username'], 'prediction': 'offensive'})
-        recent_history = list(predictions_col.find({'username': current_user['username']}, {'_id': 0}).sort('timestamp', -1).limit(20))
+        uname = current_user.get('username')
+        total = predictions_col.count_documents({'username': uname})
+        offensive = predictions_col.count_documents({'username': uname, 'prediction': 'offensive'})
+        recent_history = list(predictions_col.find({'username': uname}, {'_id': 0}).sort('timestamp', -1).limit(20))
         
         return jsonify({
             'total_predictions': total,  
@@ -566,16 +572,16 @@ def stats(current_user):
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/history/delete', methods=['POST'])
-@token_required
-def delete_history_item(current_user):
+def delete_history_item():
     try:
+        current_user = get_optional_user()
         data = request.get_json()
         if not data or not data.get('timestamp'):
             return jsonify({'error': 'Timestamp required'}), 400
             
-        if predictions_col:
+        if predictions_col is not None and current_user is not None and isinstance(current_user, dict):
             predictions_col.delete_one({
-                'username': current_user['username'],
+                'username': current_user.get('username'),
                 'timestamp': data.get('timestamp')
             })
         return jsonify({'message': 'Item deleted successfully'})
@@ -583,11 +589,11 @@ def delete_history_item(current_user):
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/history/clear', methods=['POST'])
-@token_required
-def clear_history(current_user):
+def clear_history():
     try:
-        if predictions_col:
-            predictions_col.delete_many({'username': current_user['username']})
+        current_user = get_optional_user()
+        if predictions_col is not None and current_user is not None and isinstance(current_user, dict):
+            predictions_col.delete_many({'username': current_user.get('username')})
         return jsonify({'message': 'History cleared successfully'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
