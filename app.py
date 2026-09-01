@@ -215,27 +215,82 @@ def predict_text_multi_model(text):
         except Exception as e:
             print(f"DL Prediction Error: {e}")
 
-    # ── 3. Consensus Majority Voting & Combined Score ──
+    # ── 3. Positive Animal/Neutral Context Override ──
+    # Prevent false positives where dual-meaning words (kutta, ghadha etc.)
+    # appear in clearly neutral/positive animal context sentences.
+    ANIMAL_WORDS = [
+        'kutta', 'kutte', 'billi', 'billiyan', 'ghadha', 'ghoda', 'bakra',
+        'murga', 'janwar', 'haivan', 'chirya', 'machhli', 'sher', 'hiran', 'bandar',
+        'dog', 'cat', 'horse', 'donkey', 'animal', 'bird', 'fish'
+    ]
+    POSITIVE_DESCRIPTORS = [
+        'wafadar', 'pyara', 'pyari', 'acha', 'accha', 'achi', 'sundar',
+        'khubsurat', 'madadgar', 'behtreen', 'zabardast', 'shareef', 'masoom',
+        'muskurata', 'khush', 'dost', 'loyal', 'cute', 'good', 'innocent',
+        'beautiful', 'kind', 'gentle', 'nice', 'lovely', 'caring', 'sweet',
+        'helpful', 'friendly', 'palta', 'pala', 'paltu',
+    ]
+
+    text_lower = cleaned.lower()
+    text_words = text_lower.split()
+    has_animal_word = any(aw in text_words for aw in ANIMAL_WORDS)
+    has_positive_descriptor = any(pd in text_lower for pd in POSITIVE_DESCRIPTORS)
+
+    # Only override if it's clearly an animal-in-positive-context sentence,
+    # NOT a person-directed insult (tum ek kuttay ho, tu ghadha hai etc.)
+    context_override = False
+
+    # First check: person-pronoun + animal word WITHOUT positive descriptor = direct insult
+    PERSON_PRONOUNS = ['tum ', 'tu ', 'tu\n', 'teri', 'tera', 'tumhara', 'tumhari',
+                       'aap ', 'ap ', 'you ', 'insan', 'banda', 'aadmi', 'insaan']
+    sentence_has_pronoun = any(pp in text_lower for pp in PERSON_PRONOUNS)
+
+    if has_animal_word and has_positive_descriptor and not sentence_has_pronoun:
+        context_override = True
+
+    # Direct person insult check: pronoun + animal/slur word without positive descriptor
+    is_direct_person_insult = sentence_has_pronoun and has_animal_word and not has_positive_descriptor
+
+    # ── 4. Strict Supermajority Consensus Voting ──
     if probs:
         total_models = len(probs)
         offensive_votes = sum(1 for p in probs.values() if p >= 0.50)
-        safe_votes = total_models - offensive_votes
-        
-        # Majority consensus determines classification
-        if offensive_votes >= (total_models / 2.0 + 0.1):
+
+        if context_override:
+            # Animal in safe/positive context: require supermajority (4 out of 5) to declare offensive
+            required_votes = total_models - 1
+        elif is_direct_person_insult:
+            # Direct person insult: 2 or more models confirming is sufficient
+            required_votes = 2
+        else:
+            # Standard consensus majority (3 out of 5)
+            required_votes = total_models / 2.0 + 0.1
+
+        if offensive_votes >= required_votes:
             final_pred = 'offensive'
             agreeing_probs = [p for p in probs.values() if p >= 0.50]
-            final_conf = sum(agreeing_probs) / len(agreeing_probs)
+            if agreeing_probs:
+                final_conf = sum(agreeing_probs) / len(agreeing_probs)
+            else:
+                final_conf = 0.70
         else:
             final_pred = 'non-offensive'
-            agreeing_probs = [1.0 - p for p in probs.values() if p < 0.50]
-            final_conf = sum(agreeing_probs) / len(agreeing_probs)
+            safe_probs = [1.0 - p for p in probs.values() if p < 0.50]
+            if safe_probs:
+                base_conf = sum(safe_probs) / len(safe_probs)
+                final_conf = max(base_conf, 0.70) if context_override else base_conf
+            else:
+                final_conf = 0.65
+                # All models voted offensive but threshold not met (context override case)
+                final_conf = 0.65
 
-        engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Votes Offensive: SVM, NB, RF, CNN, LSTM)"
+        override_note = " [Context-Override: Animal+Positive Context]" if context_override else ""
+        engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Votes Offensive: SVM, NB, RF, CNN, LSTM){override_note}"
     else:
         final_pred = 'non-offensive'
         final_conf = 0.5
         engine_name = "Default"
+        context_override = False
 
     return {
         'text': text,
@@ -243,6 +298,7 @@ def predict_text_multi_model(text):
         'confidence': round(float(final_conf), 4),
         'model_used': engine_name,
         'models_scores': models_scores,
+        'context_override': context_override,
         'timestamp': datetime.utcnow().isoformat()
     }
 
