@@ -3,12 +3,17 @@ Flask Backend API for Offensive Language Detection (Context-Aware Multi-Model Sy
 Supports Real-Time Detection, Multi-Model Scoring (SVM, NB, RF, CNN, LSTM), Authentication, and Feedback.
 """
 
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pickle
 import os
 import json
 import jwt
+import re
 from datetime import datetime, timedelta
 from functools import wraps
 from pymongo import MongoClient
@@ -122,21 +127,72 @@ def load_all_models():
 # Load models on server boot
 load_all_models()
 
+def clean_text_for_context(text):
+    if not text:
+        return ""
+    text = str(text)
+    # Remove URLs
+    text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
+    # Normalize common Roman Urdu animal/slur spellings
+    text = re.sub(r'\bghadha\b', 'gadha', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bkhota\b', 'gadha', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bkuttay\b', 'kutta', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bkameenay\b', 'kameena', text, flags=re.IGNORECASE)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
 def predict_text_multi_model(text):
     """
     Context-aware multi-model evaluation utilizing all 5 trained models:
     Linear SVM, Multinomial Naive Bayes, Random Forest, 1D CNN, and Bi-LSTM.
-    Uses Consensus Majority Voting + Calibrated Ensemble Confidence.
+    Integrates Polysemy & Zoometaphor Context Analysis to eliminate false positives
+    on zoological/domestic animal sentences while detecting true human insults.
     """
     if not text or not text.strip():
         return {
             'prediction': 'non-offensive',
             'confidence': 1.0,
             'model_used': 'None',
-            'models_scores': {}
+            'models_scores': {},
+            'context_override': False
         }
         
-    cleaned = text.strip()
+    cleaned = clean_text_for_context(text)
+    text_lower = cleaned.lower()
+    text_words = set(re.findall(r'\b\w+\b', text_lower))
+
+    # ── Polysemy & Context Knowledge Base ──
+    ANIMAL_WORDS = {
+        'kutta', 'kutte', 'kutto', 'kutti', 'kuttay', 'billi', 'billiyan', 'billio', 
+        'gadha', 'gadhe', 'gadho', 'ghadha', 'ghoda', 'ghode', 'bakra', 'bakre', 
+        'murga', 'murgi', 'janwar', 'janwaron', 'haivan', 'chirya', 'machhli', 
+        'sher', 'hiran', 'bandar', 'suar', 'ullu', 'khota', 'khote',
+        'dog', 'dogs', 'cat', 'cats', 'horse', 'donkey', 'animal', 'animals', 'bird', 'fish'
+    }
+
+    EXPLICIT_ABUSE = [
+        'kameena', 'kameene', 'kameenay', 'kameeni', 'harami', 'haramkhor', 
+        'jahil', 'jahalat', 'chutiya', 'chutiye', 'chutya', 'madarchod', 'mc', 
+        'behenchod', 'bhenchod', 'bc', 'randi', 'gandu', 'dalal', 'kanjar', 
+        'bhadwa', 'bhadway', 'laanti', 'lanat', 'aisi ki taisi', 'maa ki aankh', 
+        'teri maa', 'teri behan', 'tatti', 'choot', 'lodu', 'lund', 'bhosdike', 
+        'bhosdi', 'gashti', 'kutti ka', 'kanjri', 'dallay'
+    ]
+
+    HUMAN_TARGET_PRONOUNS = {
+        'tum', 'tumhe', 'tumko', 'tumhara', 'tumhari', 'tumhare', 
+        'tu', 'tujhe', 'tujhko', 'teri', 'tera', 'tere', 
+        'aap', 'aapko', 'aapka', 'aapki', 'aapke', 'ap',
+        'you', 'your', 'yours', 
+        'insan', 'insaan', 'banda', 'banday', 'aadmi', 'shakhs', 'aurat'
+    }
+
+    has_animal_word = bool(text_words.intersection(ANIMAL_WORDS))
+    has_explicit_abuse = any(ab in text_lower for ab in EXPLICIT_ABUSE)
+    has_human_target = bool(text_words.intersection(HUMAN_TARGET_PRONOUNS)) or any(
+        p in text_lower for p in ['tum ', 'tu ', 'teri ', 'tera ', 'aap ', 'you ', 'insan ', 'banda ']
+    )
+
     models_scores = {}
     probs = {}
     
@@ -215,82 +271,47 @@ def predict_text_multi_model(text):
         except Exception as e:
             print(f"DL Prediction Error: {e}")
 
-    # ── 3. Positive Animal/Neutral Context Override ──
-    # Prevent false positives where dual-meaning words (kutta, ghadha etc.)
-    # appear in clearly neutral/positive animal context sentences.
-    ANIMAL_WORDS = [
-        'kutta', 'kutte', 'billi', 'billiyan', 'ghadha', 'ghoda', 'bakra',
-        'murga', 'janwar', 'haivan', 'chirya', 'machhli', 'sher', 'hiran', 'bandar',
-        'dog', 'cat', 'horse', 'donkey', 'animal', 'bird', 'fish'
-    ]
-    POSITIVE_DESCRIPTORS = [
-        'wafadar', 'pyara', 'pyari', 'acha', 'accha', 'achi', 'sundar',
-        'khubsurat', 'madadgar', 'behtreen', 'zabardast', 'shareef', 'masoom',
-        'muskurata', 'khush', 'dost', 'loyal', 'cute', 'good', 'innocent',
-        'beautiful', 'kind', 'gentle', 'nice', 'lovely', 'caring', 'sweet',
-        'helpful', 'friendly', 'palta', 'pala', 'paltu',
-    ]
+    # ── 3. Hybrid Context Decision Engine ──
+    total_models = len(probs) if probs else 1
+    offensive_votes = sum(1 for p in probs.values() if p >= 0.50)
+    
+    # Case A: Explicit curses / profanity -> ALWAYS OFFENSIVE
+    if has_explicit_abuse:
+        final_pred = 'offensive'
+        final_conf = 0.95
+        engine_name = f"Explicit Abuse / Slur Engine ({offensive_votes}/{total_models} Models Confirming)"
+        context_override = False
 
-    text_lower = cleaned.lower()
-    text_words = text_lower.split()
-    has_animal_word = any(aw in text_words for aw in ANIMAL_WORDS)
-    has_positive_descriptor = any(pd in text_lower for pd in POSITIVE_DESCRIPTORS)
+    # Case B: Human target + Animal Slur (e.g. "tu gadha hai", "tum aik kutte ho") -> OFFENSIVE
+    elif has_animal_word and has_human_target:
+        final_pred = 'offensive'
+        # Average probability from confirming models or default 0.85
+        conf_vals = [p for p in probs.values() if p >= 0.40]
+        final_conf = (sum(conf_vals)/len(conf_vals)) if conf_vals else 0.85
+        engine_name = f"Metaphorical Human Insult Engine ({offensive_votes}/{total_models} Models Confirming)"
+        context_override = False
 
-    # Only override if it's clearly an animal-in-positive-context sentence,
-    # NOT a person-directed insult (tum ek kuttay ho, tu ghadha hai etc.)
-    context_override = False
-
-    # First check: person-pronoun + animal word WITHOUT positive descriptor = direct insult
-    PERSON_PRONOUNS = ['tum ', 'tu ', 'tu\n', 'teri', 'tera', 'tumhara', 'tumhari',
-                       'aap ', 'ap ', 'you ', 'insan', 'banda', 'aadmi', 'insaan']
-    sentence_has_pronoun = any(pp in text_lower for pp in PERSON_PRONOUNS)
-
-    if has_animal_word and has_positive_descriptor and not sentence_has_pronoun:
+    # Case C: Animal Word WITHOUT Human Target and WITHOUT Abuse (e.g. "kutta ik acha janwar hai", "meri billi ko kutte ne maar diya")
+    # -> 100% NON-OFFENSIVE (Safe Context)
+    elif has_animal_word and not has_human_target and not has_explicit_abuse:
+        final_pred = 'non-offensive'
+        final_conf = 0.92
+        engine_name = "Zoological Context Engine (Safe Animal Narrative Verified)"
         context_override = True
 
-    # Direct person insult check: pronoun + animal/slur word without positive descriptor
-    is_direct_person_insult = sentence_has_pronoun and has_animal_word and not has_positive_descriptor
-
-    # ── 4. Strict Supermajority Consensus Voting ──
-    if probs:
-        total_models = len(probs)
-        offensive_votes = sum(1 for p in probs.values() if p >= 0.50)
-
-        if context_override:
-            # Animal in safe/positive context: require supermajority (4 out of 5) to declare offensive
-            required_votes = total_models - 1
-        elif is_direct_person_insult:
-            # Direct person insult: 2 or more models confirming is sufficient
-            required_votes = 2
-        else:
-            # Standard consensus majority (3 out of 5)
-            required_votes = total_models / 2.0 + 0.1
-
-        if offensive_votes >= required_votes:
+    # Case D: Standard Ensemble Majority Consensus (3/5 Votes)
+    else:
+        context_override = False
+        if offensive_votes >= (total_models / 2.0 + 0.1):
             final_pred = 'offensive'
             agreeing_probs = [p for p in probs.values() if p >= 0.50]
-            if agreeing_probs:
-                final_conf = sum(agreeing_probs) / len(agreeing_probs)
-            else:
-                final_conf = 0.70
+            final_conf = sum(agreeing_probs) / len(agreeing_probs) if agreeing_probs else 0.70
         else:
             final_pred = 'non-offensive'
             safe_probs = [1.0 - p for p in probs.values() if p < 0.50]
-            if safe_probs:
-                base_conf = sum(safe_probs) / len(safe_probs)
-                final_conf = max(base_conf, 0.70) if context_override else base_conf
-            else:
-                final_conf = 0.65
-                # All models voted offensive but threshold not met (context override case)
-                final_conf = 0.65
+            final_conf = sum(safe_probs) / len(safe_probs) if safe_probs else 0.70
 
-        override_note = " [Context-Override: Animal+Positive Context]" if context_override else ""
-        engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Votes Offensive: SVM, NB, RF, CNN, LSTM){override_note}"
-    else:
-        final_pred = 'non-offensive'
-        final_conf = 0.5
-        engine_name = "Default"
-        context_override = False
+        engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Votes Offensive: SVM, NB, RF, CNN, LSTM)"
 
     return {
         'text': text,
@@ -511,7 +532,8 @@ def runtime_check():
         return jsonify({
             'is_offensive': result['prediction'] == 'offensive',
             'confidence': result['confidence'],
-            'models_scores': result.get('models_scores', {})
+            'models_scores': result.get('models_scores', {}),
+            'context_override': result.get('context_override', False)
         })
     except Exception as e:
         return jsonify({'is_offensive': False, 'error': str(e)}), 500
@@ -545,7 +567,8 @@ def predict():
                         'prediction': label,
                         'confidence': 1.0,
                         'model_used': 'Manual Override',
-                        'models_scores': {}
+                        'models_scores': {},
+                        'context_override': True
                     })
             except Exception:
                 pass
