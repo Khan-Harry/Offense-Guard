@@ -109,6 +109,43 @@ class DataLoader:
             except Exception as e:
                 print(f"✗ Error loading {task_file}: {e}")
         
+        # Load T1 - Offense Detection dataset (Offensive-24K)
+        try:
+            df_t1 = pd.read_excel(os.path.join(self.base_path, "Offensive-24K-T1(Offense Detection).xlsx"))
+            # Tag: 'NOT' -> 0 (Non-offensive), 'OFF' -> 1 (Offensive)
+            df_t1['label'] = df_t1['Tag'].apply(lambda x: 1 if str(x).strip().upper() == 'OFF' else 0)
+            df_t1['text'] = df_t1['Tweet']
+            df_t1 = df_t1.dropna(subset=['text', 'label'])
+            all_data.append(df_t1[['text', 'label']])
+            print(f"✓ Loaded T1 - Offense Detection: {len(df_t1)} samples")
+        except Exception as e:
+            print(f"✗ Error loading T1 dataset: {e}")
+
+        # Load T2 - Target Identification dataset (Offensive-24K)
+        try:
+            df_t2 = pd.read_excel(os.path.join(self.base_path, "Offensive-24K-T2(Target Identification).xlsx"))
+            # Tag: 0 -> 0 (Non-targeted/Non-offensive), 1 -> 1 (Targeted/Offensive)
+            df_t2['label'] = df_t2['Tag'].apply(lambda x: 1 if int(x) == 1 else 0)
+            df_t2['text'] = df_t2['Tweet']
+            df_t2 = df_t2.dropna(subset=['text', 'label'])
+            all_data.append(df_t2[['text', 'label']])
+            print(f"✓ Loaded T2 - Target Identification: {len(df_t2)} samples")
+        except Exception as e:
+            print(f"✗ Error loading T2 dataset: {e}")
+
+        # Load T3 - Target Type Classification dataset (Offensive-24K)
+        try:
+            df_t3 = pd.read_excel(os.path.join(self.base_path, "Offensive-24K-T3(Target Type Classification).xlsx"))
+            # All T3 entries are offensive (they classify types of targets)
+            # Tag: 1=Individual, 2=Group, 3=Other -> all map to 1 (Offensive)
+            df_t3['label'] = 1  # All entries in T3 are offensive
+            df_t3['text'] = df_t3['Tweet']
+            df_t3 = df_t3.dropna(subset=['text', 'label'])
+            all_data.append(df_t3[['text', 'label']])
+            print(f"✓ Loaded T3 - Target Type Classification: {len(df_t3)} samples (all offensive)")
+        except Exception as e:
+            print(f"✗ Error loading T3 dataset: {e}")
+
         # Merge all datasets
         if all_data:
             self.data = pd.concat(all_data, ignore_index=True)
