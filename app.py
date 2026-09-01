@@ -224,7 +224,6 @@ def predict_text_multi_model(text):
         # Majority consensus determines classification
         if offensive_votes >= (total_models / 2.0 + 0.1):
             final_pred = 'offensive'
-            # Confidence is average of offensive probabilities from agreeing models
             agreeing_probs = [p for p in probs.values() if p >= 0.50]
             final_conf = sum(agreeing_probs) / len(agreeing_probs)
         else:
@@ -248,6 +247,17 @@ def predict_text_multi_model(text):
     }
 
 # --- Auth Middleware ---
+def get_optional_user():
+    """Extract user from JWT token if provided; returns None if not provided or invalid"""
+    token = request.headers.get('x-access-token')
+    if not token:
+        return None
+    try:
+        data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+        return users_col.find_one({'username': data['username']}) if users_col else {'username': data['username']}
+    except Exception:
+        return None
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -386,7 +396,7 @@ def verify_feedback(current_user):
             return jsonify({'error': 'Feedback ID required'}), 400
             
         from bson.objectid import ObjectId
-        action = data.get('action') # 'verify' or 'reject'
+        action = data.get('action')
         
         if feedback_col:
             if action == 'verify':
@@ -446,12 +456,12 @@ def runtime_check():
         return jsonify({'is_offensive': False, 'error': str(e)}), 500
 
 @app.route('/predict', methods=['POST'])
-@token_required
-def predict(current_user):
+def predict():
     """
     Main Prediction Endpoint:
     Evaluates text context through SVM, Naive Bayes, Random Forest, CNN, and LSTM.
     Returns overall ensemble prediction and individual model breakdown.
+    Works seamlessly with or without auth token.
     """
     try:
         data = request.get_json()
@@ -482,11 +492,15 @@ def predict(current_user):
         # 2. Multi-Model Context-Aware Evaluation
         result = predict_text_multi_model(text)
         
-        # 3. Log prediction to DB for history
-        if predictions_col:
-            log_item = result.copy()
-            log_item['username'] = current_user['username']
-            predictions_col.insert_one(log_item)
+        # 3. Log prediction to DB for history if user authenticated
+        current_user = get_optional_user()
+        if predictions_col and current_user and isinstance(current_user, dict):
+            try:
+                log_item = result.copy()
+                log_item['username'] = current_user.get('username', 'anonymous')
+                predictions_col.insert_one(log_item)
+            except Exception:
+                pass
         
         return jsonify(result)
     
