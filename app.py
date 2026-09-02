@@ -343,12 +343,35 @@ def predict_text_multi_model(text):
 
         engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Votes Offensive: SVM, NB, RF, CNN, LSTM)"
 
+    # ── 4. Extract Flagged Offending Word(s) ──
+    flagged_words = []
+    if has_explicit_abuse:
+        for ab in EXPLICIT_ABUSE:
+            if ab in text_lower:
+                flagged_words.append(ab)
+    if has_pejorative_animal and has_human_target and not has_praise:
+        for pa in PEJORATIVE_ANIMALS:
+            if pa in text_words or pa in text_lower:
+                flagged_words.append(pa)
+    
+    if final_pred == 'offensive' and not flagged_words:
+        stop_words = {'hai', 'hain', 'mein', 'kya', 'aur', 'yeh', 'woh', 'kar', 'raha', 'rahe', 'tha', 'the', 'ko', 'se', 'par', 'ki', 'ka', 'ke', 'ne', 'ik', 'ek', 'boht', 'bahut'}
+        for w in text_lower.split():
+            clean_w = re.sub(r'\W+', '', w)
+            if len(clean_w) > 2 and clean_w not in stop_words:
+                flagged_words.append(clean_w)
+                break
+
+    primary_flagged_word = flagged_words[0] if flagged_words else ""
+
     return {
         'text': text,
         'prediction': final_pred,
         'confidence': round(float(final_conf), 4),
         'model_used': engine_name,
         'models_scores': models_scores,
+        'flagged_word': primary_flagged_word,
+        'flagged_words': flagged_words,
         'context_override': context_override,
         'timestamp': datetime.utcnow().isoformat()
     }
@@ -550,11 +573,12 @@ def runtime_check():
     """
     Lightweight, fast endpoint for real-time keystroke checking.
     Context-aware model detection without static substring false-positives.
+    Returns flagged_word and models_scores.
     """
     try:
         data = request.get_json()
         if not data or not data.get('text'):
-            return jsonify({'is_offensive': False, 'confidence': 0.0, 'models_scores': {}})
+            return jsonify({'is_offensive': False, 'confidence': 0.0, 'models_scores': {}, 'flagged_word': ''})
             
         text = data.get('text', '').strip()
         result = predict_text_multi_model(text)
@@ -563,10 +587,12 @@ def runtime_check():
             'is_offensive': result['prediction'] == 'offensive',
             'confidence': result['confidence'],
             'models_scores': result.get('models_scores', {}),
+            'flagged_word': result.get('flagged_word', ''),
+            'flagged_words': result.get('flagged_words', []),
             'context_override': result.get('context_override', False)
         })
     except Exception as e:
-        return jsonify({'is_offensive': False, 'error': str(e)}), 500
+        return jsonify({'is_offensive': False, 'error': str(e), 'flagged_word': ''}), 500
 
 @app.route('/predict', methods=['POST'])
 def predict():
