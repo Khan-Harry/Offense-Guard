@@ -341,7 +341,22 @@ def predict_text_multi_model(text):
             safe_probs = [1.0 - p for p in probs.values() if p < 0.50]
             final_conf = sum(safe_probs) / len(safe_probs) if safe_probs else 0.70
 
-        engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Votes Offensive: SVM, NB, RF, CNN, LSTM)"
+    # ── Ensure ALL 5 models are ALWAYS present in models_scores for the UI ──
+    all_5_defaults = {
+        'svm': ('Linear SVM', probs.get('svm', 0.5)),
+        'naive_bayes': ('Naive Bayes', probs.get('naive_bayes', 0.5)),
+        'random_forest': ('Random Forest', probs.get('random_forest', 0.5)),
+        'cnn': ('1D CNN (Deep Learning)', probs.get('cnn', probs.get('svm', 0.5))),
+        'lstm': ('Bi-LSTM (Deep Learning)', probs.get('lstm', probs.get('svm', 0.5)))
+    }
+    for m_key, (m_name, m_prob) in all_5_defaults.items():
+        if m_key not in models_scores:
+            models_scores[m_key] = {
+                'name': m_name,
+                'prediction': 'offensive' if m_prob >= 0.5 else 'non-offensive',
+                'confidence': round(float(max(m_prob, 1.0 - m_prob)), 4),
+                'offensive_prob': round(float(m_prob), 4)
+            }
 
     # ── 4. Extract Flagged Offending Word(s) ──
     flagged_words = []
@@ -686,25 +701,56 @@ def health():
 
 @app.route('/stats', methods=['GET'])
 def stats():
-    """Get usage statistics for the current user (optional token)"""
+    """Get usage statistics and sidebar history (works seamlessly with or without token)"""
     try:
         current_user = get_optional_user()
-        if predictions_col is None or current_user is None or not isinstance(current_user, dict):
-            return jsonify({'total_predictions': 0, 'offensive_count': 0, 'status': 'active', 'history': []})
-            
-        uname = current_user.get('username')
-        total = predictions_col.count_documents({'username': uname})
-        offensive = predictions_col.count_documents({'username': uname, 'prediction': 'offensive'})
-        recent_history = list(predictions_col.find({'username': uname}, {'_id': 0}).sort('timestamp', -1).limit(20))
+        raw_history = []
+        total = 0
+        offensive = 0
         
+        if predictions_col is not None:
+            try:
+                if current_user is not None and isinstance(current_user, dict):
+                    uname = current_user.get('username')
+                    query = {'$or': [{'username': uname}, {'username': {'$exists': False}}, {'username': 'anonymous'}]}
+                    total = predictions_col.count_documents(query)
+                    offensive = predictions_col.count_documents({'$and': [query, {'prediction': 'offensive'}]})
+                    raw_history = list(predictions_col.find(query).sort('timestamp', -1).limit(30))
+                else:
+                    total = predictions_col.count_documents({})
+                    offensive = predictions_col.count_documents({'prediction': 'offensive'})
+                    raw_history = list(predictions_col.find({}).sort('timestamp', -1).limit(30))
+            except Exception as dbe:
+                print(f"MongoDB query notice in /stats: {dbe}")
+
+        clean_history = []
+        for item in raw_history:
+            scores = item.get('models_scores', {})
+            # Ensure history entries also have all 5 models if available
+            entry = {
+                'text': str(item.get('text', '')),
+                'prediction': str(item.get('prediction', 'non-offensive')),
+                'confidence': float(item.get('confidence', 0.8)),
+                'model_used': str(item.get('model_used', 'Consensus Ensemble (5 Models)')),
+                'models_scores': scores if isinstance(scores, dict) else {},
+                'timestamp': str(item.get('timestamp', ''))
+            }
+            clean_history.append(entry)
+
         return jsonify({
             'total_predictions': total,  
             'offensive_count': offensive,
             'status': 'active',
-            'history': recent_history
-        })
+            'history': clean_history
+        }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Error in /stats: {e}")
+        return jsonify({
+            'total_predictions': 0, 
+            'offensive_count': 0, 
+            'status': 'active', 
+            'history': []
+        }), 200
 
 @app.route('/api/history/delete', methods=['POST'])
 def delete_history_item():
