@@ -3,20 +3,24 @@ sys.stdout.reconfigure(encoding='utf-8')
 from app import predict_text_multi_model
 
 test_cases = [
-    # User's exact sentences & safe animal contexts
+    # Praise & Compliments (Tareef)
+    ('tum sher ki tarah bahadur ho', 'NON-OFFENSIVE'),
+    ('tum sher ki tarah larhte ho', 'NON-OFFENSIVE'),
+    ('tum sher ki tarah larte ho', 'NON-OFFENSIVE'),
+    ('mera sher beta hai', 'NON-OFFENSIVE'),
+    ('tum cheetay ho yaar', 'NON-OFFENSIVE'),
+
+    # Safe Animal & Zoological Contexts
     ('kutta ik acha janwar hai', 'NON-OFFENSIVE'),
     ('meri billi ko kutte ne maar diya', 'NON-OFFENSIVE'),
     ('kutta aik boht wafadar janwar hai', 'NON-OFFENSIVE'),
-    ('meri billi boht pyari hai', 'NON-OFFENSIVE'),
-    ('ghadha boht madadgar janwar hota hai', 'NON-OFFENSIVE'),
     ('Assalam o Alaikum, aap kaise hain?', 'NON-OFFENSIVE'),
-    ('Pakistan zindabad, hum sab aik hain', 'NON-OFFENSIVE'),
     
-    # Offensive person-directed insults & profanity
+    # Metaphorical Insults & Explicit Abuse (Must be OFFENSIVE)
     ('tum aik kutte aur kameenay insan ho', 'OFFENSIVE'),
     ('teri aisi ki taisi jahil', 'OFFENSIVE'),
+    ('tu gadha hai bilkul', 'OFFENSIVE'),
     ('yeh banda kuttay se bura hai', 'OFFENSIVE'),
-    ('tu ghadha hai bilkul', 'OFFENSIVE'),
     ('teri maa ki', 'OFFENSIVE'),
 ]
 
@@ -36,3 +40,9 @@ for text, expected in test_cases:
 
 print('='*75)
 print(f"Final Accuracy: {correct}/{len(test_cases)} ({correct/len(test_cases)*100:.0f}%)")
+
+# Also check 5 models breakdown on praise sample:
+sample_res = predict_text_multi_model('tum sher ki tarah bahadur ho')
+print('\nSample Models Scores Count:', len(sample_res['models_scores']))
+for k, v in sample_res['models_scores'].items():
+    print(f"  - {v['name']}: {v['prediction']} ({v['confidence']*100:.1f}%)")

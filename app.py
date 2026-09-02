@@ -161,15 +161,35 @@ def predict_text_multi_model(text):
     text_lower = cleaned.lower()
     text_words = set(re.findall(r'\b\w+\b', text_lower))
 
-    # ── Polysemy & Context Knowledge Base ──
-    ANIMAL_WORDS = {
-        'kutta', 'kutte', 'kutto', 'kutti', 'kuttay', 'billi', 'billiyan', 'billio', 
-        'gadha', 'gadhe', 'gadho', 'ghadha', 'ghoda', 'ghode', 'bakra', 'bakre', 
-        'murga', 'murgi', 'janwar', 'janwaron', 'haivan', 'chirya', 'machhli', 
-        'sher', 'hiran', 'bandar', 'suar', 'ullu', 'khota', 'khote',
-        'dog', 'dogs', 'cat', 'cats', 'horse', 'donkey', 'animal', 'animals', 'bird', 'fish'
+    # ── Polysemy, Zoological & Metaphorical Praise Analyzer ──
+    # 1. Noble animals / heroic praise metaphors (positive in Urdu culture):
+    NOBLE_PRAISE_ANIMALS = {
+        'sher', 'shair', 'cheeta', 'cheetay', 'shaheen', 'baaz', 'hiran', 'bulbul', 'ghoda', 'ghode'
     }
 
+    # 2. Pejorative animal slurs (when directed at humans, used as insults):
+    PEJORATIVE_ANIMALS = {
+        'kutta', 'kutte', 'kutto', 'kutti', 'kuttay', 
+        'gadha', 'gadhe', 'gadho', 'ghadha', 'ghadhe', 'khota', 'khote',
+        'suar', 'suwar', 'ullu', 'bandar', 'chirkut', 'kanjar', 'bakra', 'bakre'
+    }
+
+    ALL_ANIMAL_WORDS = NOBLE_PRAISE_ANIMALS.union(PEJORATIVE_ANIMALS).union({
+        'billi', 'billiyan', 'billio', 'murga', 'murgi', 'janwar', 'janwaron', 'haivan', 
+        'chirya', 'machhli', 'dog', 'dogs', 'cat', 'cats', 'horse', 'donkey', 'animal', 'animals'
+    })
+
+    # 3. Praise / Compliment / Positive context descriptors:
+    PRAISE_DESCRIPTORS = [
+        'bahadur', 'diler', 'shandar', 'shaandaar', 'zindadil', 'behtreen', 
+        'zabardast', 'kamal', 'kamaal', 'pyara', 'pyari', 'wafadar', 'madadgar', 
+        'masoom', 'shareef', 'fakhr', 'proud', 'hero', 'champ', 'superstar', 
+        'acha', 'accha', 'achi', 'acchi', 'good', 'great', 'brave', 'strong', 
+        'loyal', 'cute', 'sweet', 'kind', 'honest', 'larte', 'larta', 'larhte', 
+        'larhta', 'hifazat', 'bachaya', 'pyar', 'muhabbat', 'pasand', 'khoobsurat', 'khubsurat'
+    ]
+
+    # 4. Explicit abuse / slurs (ALWAYS offensive):
     EXPLICIT_ABUSE = [
         'kameena', 'kameene', 'kameenay', 'kameeni', 'harami', 'haramkhor', 
         'jahil', 'jahalat', 'chutiya', 'chutiye', 'chutya', 'madarchod', 'mc', 
@@ -187,8 +207,11 @@ def predict_text_multi_model(text):
         'insan', 'insaan', 'banda', 'banday', 'aadmi', 'shakhs', 'aurat'
     }
 
-    has_animal_word = bool(text_words.intersection(ANIMAL_WORDS))
+    has_noble_animal = bool(text_words.intersection(NOBLE_PRAISE_ANIMALS))
+    has_pejorative_animal = bool(text_words.intersection(PEJORATIVE_ANIMALS))
+    has_any_animal = bool(text_words.intersection(ALL_ANIMAL_WORDS))
     has_explicit_abuse = any(ab in text_lower for ab in EXPLICIT_ABUSE)
+    has_praise = any(pr in text_lower for pr in PRAISE_DESCRIPTORS)
     has_human_target = bool(text_words.intersection(HUMAN_TARGET_PRONOUNS)) or any(
         p in text_lower for p in ['tum ', 'tu ', 'teri ', 'tera ', 'aap ', 'you ', 'insan ', 'banda ']
     )
@@ -282,24 +305,31 @@ def predict_text_multi_model(text):
         engine_name = f"Explicit Abuse / Slur Engine ({offensive_votes}/{total_models} Models Confirming)"
         context_override = False
 
-    # Case B: Human target + Animal Slur (e.g. "tu gadha hai", "tum aik kutte ho") -> OFFENSIVE
-    elif has_animal_word and has_human_target:
+    # Case B: Praise / Compliments (e.g. "tum sher ki tarah bahadur ho", "tum sher ki tarah larhte ho", "mera sher beta")
+    # -> 100% NON-OFFENSIVE (Safe Praise)
+    elif (has_noble_animal or has_praise) and not has_explicit_abuse and not (has_pejorative_animal and not has_praise):
+        final_pred = 'non-offensive'
+        final_conf = 0.94
+        engine_name = "Praise & Compliment Engine (Tareefi Jumla Verified)"
+        context_override = True
+
+    # Case C: Human target + Pejorative Animal Slur without praise (e.g. "tu gadha hai", "tum aik kutte ho") -> OFFENSIVE
+    elif has_pejorative_animal and has_human_target and not has_praise:
         final_pred = 'offensive'
-        # Average probability from confirming models or default 0.85
         conf_vals = [p for p in probs.values() if p >= 0.40]
         final_conf = (sum(conf_vals)/len(conf_vals)) if conf_vals else 0.85
         engine_name = f"Metaphorical Human Insult Engine ({offensive_votes}/{total_models} Models Confirming)"
         context_override = False
 
-    # Case C: Animal Word WITHOUT Human Target and WITHOUT Abuse (e.g. "kutta ik acha janwar hai", "meri billi ko kutte ne maar diya")
-    # -> 100% NON-OFFENSIVE (Safe Context)
-    elif has_animal_word and not has_human_target and not has_explicit_abuse:
+    # Case D: Animal Word WITHOUT Human Target and WITHOUT Abuse (e.g. "kutta ik acha janwar hai", "meri billi ko kutte ne maar diya")
+    # -> 100% NON-OFFENSIVE (Safe Zoological Context)
+    elif has_any_animal and not has_human_target and not has_explicit_abuse:
         final_pred = 'non-offensive'
         final_conf = 0.92
         engine_name = "Zoological Context Engine (Safe Animal Narrative Verified)"
         context_override = True
 
-    # Case D: Standard Ensemble Majority Consensus (3/5 Votes)
+    # Case E: Standard Ensemble Majority Consensus (3/5 Votes)
     else:
         context_override = False
         if offensive_votes >= (total_models / 2.0 + 0.1):
