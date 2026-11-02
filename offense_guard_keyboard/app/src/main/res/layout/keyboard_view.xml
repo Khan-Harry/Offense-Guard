@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/keyboard_bg"
+    android:paddingBottom="52dp">
+
+    <!-- Smart Safety Bar -->
+    <LinearLayout
+        android:id="@+id/safetyBar"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:background="@color/safety_clean_bg">
+
+        <TextView
+            android:id="@+id/tvSafetyStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/status_safe"
+            android:textColor="@color/safety_clean_text"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- In-Keyboard ReThink Style Offensive Warning Card (Popup) -->
+    <LinearLayout
+        android:id="@+id/cardReThinkWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#2E181B"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvDialogTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/card_dialog_title"
+                android:textColor="#FF8A80"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnDialogDismiss"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/transparent"
+                android:text="@string/action_ignore"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvFlaggedWordCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/card_flagged_placeholder"
+            android:textColor="#FF5252"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Warning Action Buttons: Delete Word | Use Anyway | Always Allow -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/btnCardClear"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/key_special_background"
+                android:text="🗑️ Delete Word"
+                android:textColor="#FF8A80"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:padding="2dp"
+                android:layout_marginEnd="4dp"
+                android:stateListAnimator="@null" />
+
+            <Button
+                android:id="@+id/btnCardUseAnyway"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.05"
+                android:background="@drawable/key_special_background"
+                android:text="⚡ Use Anyway"
+                android:textColor="#E0E0E0"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:padding="2dp"
+                android:layout_marginEnd="4dp"
+                android:stateListAnimator="@null" />
+
+            <Button
+                android:id="@+id/btnCardAllow"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.1"
+                android:background="@drawable/key_special_background"
+                android:text="⭐ Always Allow"
+                android:textColor="#8AB4F8"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:padding="2dp"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#2E3036" />
+
+    <!-- Container for Keyboard Rows (Alpha Layout) -->
+    <LinearLayout
+        android:id="@+id/layoutAlpha"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
+        android:paddingHorizontal="3dp">
+
+        <!-- Row 1: Q W E R T Y U I O P -->
+        <LinearLayout
+            android:id="@+id/row1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="5dp" />
+
+        <!-- Row 2: A S D F G H J K L -->
+        <LinearLayout
+            android:id="@+id/row2"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:layout_marginBottom="5dp" />
+
+        <!-- Row 3: Shift, Z X C V B N M, Backspace -->
+        <LinearLayout
+            android:id="@+id/row3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="5dp" />
+    </LinearLayout>
+
+    <!-- Container for Numbers Layout (Hidden by default) -->
+    <LinearLayout
+        android:id="@+id/layoutNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
+        android:paddingHorizontal="3dp"
+        android:visibility="gone">
+
+        <!-- Num Row 1 -->
+        <LinearLayout
+            android:id="@+id/numRow1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="5dp" />
+
+        <!-- Num Row 2 -->
+        <LinearLayout
+            android:id="@+id/numRow2"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="5dp" />
+
+        <!-- Num Row 3 -->
+        <LinearLayout
+            android:id="@+id/numRow3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="5dp" />
+    </LinearLayout>
+
+    <!-- Bottom Row: ?123, 🌐 Globe, Space, ., Enter -->
+    <LinearLayout
+        android:id="@+id/rowBottom"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="3dp">
+
+        <Button
+            android:id="@+id/btnModeSwitch"
+            android:layout_width="54dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/key_special_background"
+            android:text="@string/btn_mode_switch"
+            android:textColor="@color/key_special_text"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="3dp"
+            android:stateListAnimator="@null"
+            android:elevation="1dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp" />
+
+        <Button
+            android:id="@+id/btnGlobe"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/key_special_background"
+            android:text="🌐"
+            android:textColor="@color/key_special_text"
+            android:textSize="17sp"
+            android:layout_marginEnd="3dp"
+            android:stateListAnimator="@null"
+            android:elevation="1dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp" />
+
+        <Button
+            android:id="@+id/btnSpace"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/key_background"
+            android:text="English"
+            android:textColor="@color/key_special_text"
+            android:textSize="13sp"
+            android:layout_marginHorizontal="2dp"
+            android:stateListAnimator="@null"
+            android:elevation="2dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp" />
+
+        <Button
+            android:id="@+id/btnPeriod"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/key_special_background"
+            android:text="."
+            android:textColor="@color/key_text"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="2dp"
+            android:stateListAnimator="@null"
+            android:elevation="1dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp" />
+
+        <Button
+            android:id="@+id/btnEnter"
+            android:layout_width="52dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/key_action_background"
+            android:text="↵"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:layout_marginStart="3dp"
+            android:stateListAnimator="@null"
+            android:elevation="3dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp" />
+    </LinearLayout>
+
+</LinearLayout>

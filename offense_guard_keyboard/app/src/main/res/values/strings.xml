@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Offense Guard Keyboard</string>
+    <string name="keyboard_name">Offense Guard Keyboard</string>
+    <string name="subtype_en_us">English (Offense Guard)</string>
+
+    <string name="setup_title">Offense Guard AI Keyboard</string>
+    <string name="setup_desc">Protect your messages and comments across Instagram, WhatsApp, TikTok, and all apps in real-time.</string>
+    <string name="step_1_title">Step 1: Enable in Settings</string>
+    <string name="step_1_desc">Enable Offense Guard in your Android System Input Methods list.</string>
+    <string name="step_1_btn">Enable in Settings</string>
+    <string name="step_2_title">Step 2: Select Keyboard</string>
+    <string name="step_2_desc">Switch your active input method to Offense Guard Keyboard.</string>
+    <string name="step_2_btn">Select Active Keyboard</string>
+
+    <string name="status_safe">🛡️ Offense Guard Active • Clean</string>
+    <string name="status_warning">⚠️ Offensive Content Detected!</string>
+    <string name="action_censor">🛡️ Censor (***)</string>
+    <string name="action_ignore">✕</string>
+    <string name="btn_mode_switch">123</string>
+    <string name="card_dialog_title">Offensive Language Warning</string>
+    <string name="card_flagged_placeholder">Flagged Content</string>
+    <string name="card_action_clear">Delete</string>
+    <string name="card_action_allow">Allow</string>
+</resources>
