@@ -1368,4 +1368,5 @@ def download_apk_file():
     return send_from_directory(downloads_dir, apk_filename, as_attachment=True, mimetype='application/vnd.android.package-archive')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 7860))
+    app.run(host='0.0.0.0', port=port)
