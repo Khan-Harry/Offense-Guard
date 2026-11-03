@@ -537,6 +537,19 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
+@app.route('/')
+def home():
+    return jsonify({
+        'status': 'online',
+        'service': 'OffenseGuard Backend API',
+        'endpoints': {
+            'runtime_check': '/api/runtime_check (POST)',
+            'predict': '/predict (POST)',
+            'download_page': '/download (GET)',
+            'health': '/health (GET)'
+        }
+    })
+
 # --- Auth Routes ---
 @app.route('/api/auth/signup', methods=['POST'])
 def signup():
