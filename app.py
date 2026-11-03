@@ -1312,7 +1312,10 @@ def download_page():
     app_apk = os.path.join(downloads_dir, 'OffenseGuard_App_v1.0.apk')
 
     keyboard_size = round(os.path.getsize(keyboard_apk) / (1024 * 1024), 1) if os.path.exists(keyboard_apk) else 5.8
-    app_size = round(os.path.getsize(app_apk) / (1024 * 1024), 1) if os.path.exists(app_apk) else 153.0
+    app_size = round(os.path.getsize(app_apk) / (1024 * 1024), 1) if os.path.exists(app_apk) else 54.9
+
+    github_app_url = "https://github.com/Khan-Harry/Offense-Guard/releases/download/v1.0/OffenseGuard_App_v1.0.apk"
+    github_kbd_url = "https://github.com/Khan-Harry/Offense-Guard/releases/download/v1.0/OffenseGuard_v1.8.apk"
 
     html = f"""
     <!DOCTYPE html>
@@ -1355,7 +1358,7 @@ def download_page():
 
             <div class="apk-section">
                 <div class="apk-label">📱 Step 1 — Main Dashboard App</div>
-                <a href="/download/app" class="btn-download">
+                <a href="{github_app_url}" class="btn-download">
                     ⬇️ Download Dashboard App ({app_size} MB)
                 </a>
                 <div class="meta">Analytics, real-time detection & keyboard setup guide</div>
@@ -1363,7 +1366,7 @@ def download_page():
 
             <div class="apk-section">
                 <div class="apk-label">⌨️ Step 2 — AI Keyboard</div>
-                <a href="/download/apk" class="btn-download secondary">
+                <a href="{github_kbd_url}" class="btn-download secondary">
                     ⬇️ Download AI Keyboard ({keyboard_size} MB)
                 </a>
                 <div class="meta">System-wide offensive language blocker keyboard</div>
