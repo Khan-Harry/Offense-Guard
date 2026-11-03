@@ -7,7 +7,7 @@ import sys
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
-from flask import Flask, request, jsonify, send_file, send_from_directory, render_template_string
+from flask import Flask, request, jsonify, send_file, send_from_directory, render_template_string, redirect
 from flask_cors import CORS
 import pickle
 import os
@@ -1397,22 +1397,25 @@ def download_app_file():
     """
     downloads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'downloads')
     apk_filename = 'OffenseGuard_App_v1.0.apk'
+    GITHUB_RELEASE_APP = "https://github.com/Khan-Harry/Offense-Guard/releases/download/v1.0/OffenseGuard_App_v1.0.apk"
     if not os.path.exists(os.path.join(downloads_dir, apk_filename)):
-        return jsonify({'error': 'Dashboard APK not found on server'}), 404
+        return redirect(GITHUB_RELEASE_APP)
     return send_from_directory(downloads_dir, apk_filename, as_attachment=True, mimetype='application/vnd.android.package-archive')
 
 @app.route('/download/apk')
 def download_apk_file():
     """
     Direct endpoint to stream the OffenseGuard AI Keyboard APK.
+    Falls back to GitHub Release CDN if running in serverless environment.
     """
     downloads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'downloads')
     apk_filename = 'OffenseGuard_v1.8.apk'
+    GITHUB_RELEASE_KEYBOARD = "https://github.com/Khan-Harry/Offense-Guard/releases/download/v1.0/OffenseGuard_v1.8.apk"
     if not os.path.exists(os.path.join(downloads_dir, apk_filename)):
         alt_apk = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'offense_guard_keyboard', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk')
         if os.path.exists(alt_apk):
             return send_file(alt_apk, as_attachment=True, download_name=apk_filename, mimetype='application/vnd.android.package-archive')
-        return jsonify({'error': 'Keyboard APK not found on server'}), 404
+        return redirect(GITHUB_RELEASE_KEYBOARD)
     return send_from_directory(downloads_dir, apk_filename, as_attachment=True, mimetype='application/vnd.android.package-archive')
 
 if __name__ == '__main__':
