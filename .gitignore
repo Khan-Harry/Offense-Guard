@@ -83,3 +83,5 @@ offense_guard_keyboard/.idea/
 scratch/
 *.tmp
 offense_guard_keyboard/local.properties
+
+cloudflared.exe

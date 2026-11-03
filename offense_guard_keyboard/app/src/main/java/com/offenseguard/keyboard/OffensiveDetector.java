@@ -35,8 +35,8 @@ import java.util.concurrent.Executors;
 public class OffensiveDetector {
     private static final String TAG = "OffensiveDetector";
 
-    // Flask Backend API Endpoint
-    public static String SERVER_URL = "http://172.0.1.136:5000/api/runtime_check";
+    // Flask Backend API Endpoint (Public HTTPS Live Tunnel)
+    public static String SERVER_URL = "https://leu-experiences-namespace-vic.trycloudflare.com/api/runtime_check";
 
     // ─── Roman Urdu / English blacklist (matched after toLowerCase) ───────────
     // IMPORTANT: Every word must include ALL common phonetic/spelling variations
