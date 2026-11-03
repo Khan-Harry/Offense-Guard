@@ -1,0 +1,11 @@
+.venv
+.git
+.github
+models/*.keras
+models/*.h5
+models/word2vec*
+mobile_app
+offense_guard_keyboard
+static/downloads/*.apk
+cloudflared.exe
+*.log

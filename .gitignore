@@ -85,3 +85,5 @@ scratch/
 offense_guard_keyboard/local.properties
 
 cloudflared.exe
+
+user_overrides.json
