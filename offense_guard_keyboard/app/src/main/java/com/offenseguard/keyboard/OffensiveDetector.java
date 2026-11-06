@@ -36,7 +36,7 @@ public class OffensiveDetector {
     private static final String TAG = "OffensiveDetector";
 
     // Flask Backend API Endpoint (Public HTTPS Live Tunnel)
-    public static String SERVER_URL = "https://leu-experiences-namespace-vic.trycloudflare.com/api/runtime_check";
+    public static String SERVER_URL = "https://offense-guard.vercel.app/api/runtime_check";
 
     // ─── Roman Urdu / English blacklist (matched after toLowerCase) ───────────
     // IMPORTANT: Every word must include ALL common phonetic/spelling variations
