@@ -1492,7 +1492,7 @@ def download_page():
     app_apk = os.path.join(downloads_dir, 'OffenseGuard_App_v1.0.apk')
 
     keyboard_size = round(os.path.getsize(keyboard_apk) / (1024 * 1024), 1) if os.path.exists(keyboard_apk) else 5.8
-    app_size = round(os.path.getsize(app_apk) / (1024 * 1024), 1) if os.path.exists(app_apk) else 54.9
+    app_size = round(os.path.getsize(app_apk) / (1024 * 1024), 1) if os.path.exists(app_apk) else 56.2
 
     github_app_url = "https://github.com/Khan-Harry/Offense-Guard/releases/download/v1.0/OffenseGuard_App_v1.0.apk"
     github_kbd_url = "https://github.com/Khan-Harry/Offense-Guard/releases/download/v1.0/OffenseGuard_v1.8.apk"
