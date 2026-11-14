@@ -674,7 +674,7 @@ def predict_text_multi_model(text):
 
 # --- Auth Middleware ---
 def get_optional_user():
-    """Extract user from JWT token if provided; returns None if not provided or invalid"""
+    """Extract user from JWT/Firebase token if provided; returns None if not provided or invalid"""
     token = request.headers.get('x-access-token')
     if not token and 'Authorization' in request.headers:
         auth = request.headers['Authorization']
@@ -682,6 +682,23 @@ def get_optional_user():
     if not token:
         return None
     try:
+        # Check if Firebase Token
+        unverified = jwt.decode(token, options={"verify_signature": False})
+        if unverified.get('aud') == 'offenseguard-f8fb2' or 'securetoken.google.com' in unverified.get('iss', ''):
+            if unverified.get('exp') and datetime.utcnow().timestamp() > unverified['exp']:
+                return None
+            email = unverified.get('email', '')
+            username = email.split('@')[0] if email else unverified.get('user_id', 'user')
+            is_admin = (
+                email.lower().startswith('admin') or 
+                'admin' in email.lower() or 
+                email.lower() == 'khan@offenseguard.com' or 
+                unverified.get('admin', False) or
+                unverified.get('is_admin', False)
+            )
+            return {'username': username, 'email': email, 'is_admin': is_admin}
+        
+        # Legacy Flask JWT
         data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
         if users_col is not None:
             user = users_col.find_one({'username': data['username']})
@@ -704,12 +721,39 @@ def token_required(f):
             return jsonify({'message': 'Token is missing!'}), 401
         
         try:
+            # 1. Try Firebase Token
+            unverified = jwt.decode(token, options={"verify_signature": False})
+            if unverified.get('aud') == 'offenseguard-f8fb2' or 'securetoken.google.com' in unverified.get('iss', ''):
+                if unverified.get('exp') and datetime.utcnow().timestamp() > unverified['exp']:
+                    print(f"[AUTH 401] Firebase token EXPIRED for {request.path}")
+                    return jsonify({'message': 'Session expired! Please login again.'}), 401
+                
+                email = unverified.get('email', '')
+                username = email.split('@')[0] if email else unverified.get('user_id', 'user')
+                is_admin = (
+                    email.lower().startswith('admin') or 
+                    'admin' in email.lower() or 
+                    email.lower() == 'khan@offenseguard.com' or 
+                    unverified.get('admin', False) or
+                    unverified.get('is_admin', False)
+                )
+                current_user = {
+                    'username': username,
+                    'email': email,
+                    'user_id': unverified.get('user_id', unverified.get('sub', '')),
+                    'is_admin': is_admin
+                }
+                return f(current_user, *args, **kwargs)
+        except Exception:
+            pass
+
+        # 2. Fallback: Legacy Flask JWT
+        try:
             data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
             current_user = None
             if users_col is not None:
                 current_user = users_col.find_one({'username': data['username']})
             if not current_user:
-                # Valid signed token with username claim — accept as authenticated user
                 current_user = {'username': data['username'], 'is_admin': data.get('is_admin', False)}
         except jwt.ExpiredSignatureError:
             print(f"[AUTH 401] Token EXPIRED for {request.path}")
