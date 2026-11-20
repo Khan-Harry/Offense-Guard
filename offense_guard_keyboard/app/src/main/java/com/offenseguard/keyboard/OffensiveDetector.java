@@ -234,17 +234,19 @@ public class OffensiveDetector {
         "حرام خور",
         "کمینہ آدمی", "ذلیل آدمی", "نالائق آدمی",
         "کتے کی اولاد", "گدھے کی اولاد",
+        "جانور ہو", "جانور ہے", "جانور ھے", "جانور جیسی", "جانور جیسا", "جانوروں جیسی", "جانوروں جیسا",
         // Roman Urdu possessive slurs & idioms (always offensive)
         "kutta k bachay", "kuttay k bachay", "kutta kay bachay", "kuttay kay bachay",
         "kutta ki aulad", "kutte ki aulad", "kuttay ki aulad",
         "gadha k bachay", "gadhe k bachay", "gadha ki aulad", "gadhe ki aulad",
-        "ullu ka patha", "ullu ka pattha", "teri maa", "teri behan"
+        "ullu ka patha", "ullu ka pattha", "teri maa", "teri behan",
+        "janwar ho", "janwar hai", "janwar he", "janwar jesi", "janwar jesa", "janwaro jesi", "janwaron jesi", "harkaten janwar"
     };
 
     // ─── Zoological / Biological Factual Context Markers (Prevent False Positives) ───
     private static final List<String> ZOOLOGICAL_MARKERS = Arrays.asList(
-        "جانور", "janwar", "وفادار", "wafadar", "پالتو", "palto", "paaltu",
-        "ایک جانور", "ek janwar", "aik janwar", "animal", "pet", "pets",
+        "ایک جانور", "ek janwar", "aik janwar", "وفادار جانور", "wafadar janwar", "wafadar", 
+        "پالتو", "palto", "paaltu", "animal", "pet", "pets",
         "جنگلی", "jungli", "چوپایہ", "دودھ", "breed", "nasl", "نسل", "چرند", "پرند", "بیمار"
     );
 

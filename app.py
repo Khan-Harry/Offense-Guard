@@ -371,25 +371,72 @@ def predict_text_multi_model(text):
     text_words = set(re.findall(r'[\w\u0600-\u06FF]+', text_lower))
 
     # ── Polysemy, Zoological & Metaphorical Praise Analyzer (Bilingual: Roman Urdu + Urdu Script) ──
+    # 0. Common Pakistani Personal Names & Political Figures (should never be flagged standalone):
+    COMMON_NAMES = {
+        'imran', 'nawaz', 'ali', 'ahmed', 'ahmad', 'muhammad', 'mohammad', 'usman', 'bilal', 
+        'hamza', 'fatima', 'ayesha', 'zainab', 'khan', 'hassan', 'hasan', 'hussain', 'husain',
+        'asif', 'shahid', 'babar', 'rizwan', 'shaheen', 'maryam', 'bilawal', 'zardari',
+        'tariq', 'omer', 'umar', 'saad', 'rashid', 'farhan', 'kamran', 'salman', 'amna',
+        'hina', 'sara', 'sana', 'iqbal', 'quaid', 'waqas', 'arslan', 'haris', 'adnan',
+        'irfan', 'kashif', 'fahad', 'junaid', 'zubair', 'faisal', 'abid', 'nadeem',
+        'rehan', 'daniyal', 'danish', 'mohsin', 'shahrukh', 'atif', 'mehwish', 'saba',
+        'mahira', 'iqra', 'nimra', 'sadia', 'samina', 'bushra', 'sidra', 'marium',
+        'عمران', 'نواز', 'علی', 'احمد', 'محمد', 'عثمان', 'بلال', 'حمزہ', 'فاطمہ', 'عائشہ',
+        'زینب', 'خان', 'حسن', 'حسین', 'آصف', 'شاہد', 'بابر', 'رضوان', 'شاہین', 'مریم',
+        'بلاول', 'زرداری', 'طارق', 'عمر', 'سعد', 'راشد', 'فرحان', 'کامران', 'سلمان', 'آمنہ',
+        'حنا', 'سارہ', 'ثنا', 'اقبال', 'وقاص', 'ارسلان', 'حارث', 'عدنان', 'عرفان', 'کاشف',
+        'فہد', 'جنید', 'زبیر', 'فیصل', 'عابد', 'ندیم', 'ریحان', 'دانیال', 'دانش', 'محسن',
+        'عاطف', 'صبا', 'اقرا', 'نمرہ', 'سعدیہ', 'ثمینہ', 'بشریٰ', 'سدرہ'
+    }
+
     # 1. Noble animals / heroic praise metaphors (positive in Urdu culture):
     NOBLE_PRAISE_ANIMALS = {
         'sher', 'shair', 'cheeta', 'cheetay', 'shaheen', 'baaz', 'hiran', 'bulbul', 'ghoda', 'ghode',
         'شیر', 'چیتا', 'شاہین', 'باز', 'ہرن', 'بلبل', 'گھوڑا', 'گھوڑے'
     }
 
-    # 2. Pejorative animal slurs (when directed at humans, used as insults):
+    # 2. Pejorative animal slurs (when directed at humans or actions, used as insults):
     PEJORATIVE_ANIMALS = {
-        'kutta', 'kutte', 'kutto', 'kutti', 'kuttay', 
+        'kutta', 'kutte', 'kutto', 'kutti', 'kuttay', 'kuto',
         'gadha', 'gadhe', 'gadho', 'ghadha', 'ghadhe', 'khota', 'khote',
         'suar', 'suwar', 'ullu', 'bandar', 'chirkut', 'kanjar', 'bakra', 'bakre',
+        'janwar', 'janwaron', 'janwaro', 'janwaroon', 'janwer',
+        'haivan', 'haiwan', 'darinda', 'darinde', 'darinday',
         'کتا', 'کتے', 'کتوں', 'کتیا', 'کتیاں', 
         'گدھا', 'گدھے', 'گدھوں', 'کھوتا', 'کھوتے',
-        'سور', 'خنزیر', 'الو', 'بندر', 'بکرا', 'بکرے'
+        'سور', 'خنزیر', 'الو', 'بندر', 'بکرا', 'بکرے',
+        'جانور', 'جانوروں', 'حیوان', 'درندہ', 'درندے'
     }
 
-    ALL_ANIMAL_WORDS = NOBLE_PRAISE_ANIMALS.union(PEJORATIVE_ANIMALS).union({
-        'billi', 'billiyan', 'billio', 'murga', 'murgi', 'janwar', 'janwaron', 'haivan', 
-        'chirya', 'machhli', 'dog', 'dogs', 'cat', 'cats', 'horse', 'donkey', 'animal', 'animals',
+    # 2b. Pejorative dehumanizing animal insult phrases:
+    PEJORATIVE_ANIMAL_PHRASES = [
+        'janwar ho', 'janwar hai', 'janwar he', 'janwar hain', 'janwar hay', 'janwar tha',
+        'janwar jesa', 'janwar jesi', 'janwar jese', 'janwaro jesa', 'janwaro jesi', 'janwaro jese',
+        'janwaron jesa', 'janwaron jesi', 'janwaron jese', 'janwaroon jesi', 'janwaron ki tarah', 'janwar ki tarah',
+        'harkaten janwar', 'harkatein janwar', 'harkat janwar', 'harkat janwaron',
+        'kutta ho', 'kutta hai', 'kutta he', 'kutte ho', 'kutte hai', 'kuttay ho', 'kuttay hai',
+        'gadha ho', 'gadha hai', 'gadha he', 'gadhe ho', 'gadhe hai',
+        'suar ho', 'suar hai', 'suar he',
+        'haivan ho', 'haivan hai', 'darinda hai', 'darinda ho',
+        'kuttay jesa', 'kuttay jesi', 'kutton jesi', 'kutton ki tarah',
+        'gadhe jesa', 'gadhe jesi', 'gadho jesi', 'gadhe ki tarah',
+        'جانور ہو', 'جانور ہے', 'جانور ھے', 'جانور ہیں', 'جانور جیسا', 'جانور جیسی', 'جانور جیسے',
+        'جانوروں جیسا', 'جانوروں جیسی', 'جانوروں جیسے', 'جانوروں کی طرح', 'جانور کی طرح',
+        'حرکتیں جانور', 'حرکت جانور', 'کتا ہے', 'کتا ہو', 'کتے ہو', 'گدھا ہے', 'گدھا ہو',
+        'سور ہے', 'سور ہو', 'حیوان ہے', 'حیوان ہو', 'درندہ ہے'
+    ]
+
+    # Actual biological animal species (for zoological context verification):
+    ACTUAL_BIOLOGICAL_ANIMALS = {
+        'kutta', 'kutti', 'kutte', 'kuttay', 'billi', 'billa', 'billiyan', 
+        'sher', 'cheeta', 'hathi', 'ghoda', 'ghode', 'gadha', 'gadhe', 'khota',
+        'suar', 'suwar', 'bakra', 'bakri', 'bakray', 'gay', 'gaaye', 'bhains',
+        'oonth', 'bail', 'lomri', 'bheriya', 'bandar', 'hiran', 'bulbul', 'shaheen', 'chirya', 'machhli',
+        'کتا', 'بلی', 'شیر', 'چیتا', 'ہاتھی', 'گھوڑا', 'گدھا', 'سور', 'بکرا', 'بکری', 'گائے', 'بھینس', 'اونٹ'
+    }
+
+    ALL_ANIMAL_WORDS = NOBLE_PRAISE_ANIMALS.union(PEJORATIVE_ANIMALS).union(ACTUAL_BIOLOGICAL_ANIMALS).union({
+        'billio', 'murga', 'murgi', 'dog', 'dogs', 'cat', 'cats', 'horse', 'donkey', 'animal', 'animals',
         'بیل', 'بھینس', 'اونٹ', 'ہاتھی', 'لومڑی', 'بھیڑیا',
         'بلی', 'بلیاں', 'مرغ', 'مرغا', 'مرغی', 'جانور', 'جانوروں', 'حیوان', 'حیوانات',
         'چڑیا', 'مچھلی', 'پرندہ', 'پرندے'
@@ -397,10 +444,10 @@ def predict_text_multi_model(text):
 
     # 3. Explicit Zoological / Factual context indicators (definitively biological context):
     ZOOLOGICAL_FACTUAL_MARKERS = [
-        'ek janwar', 'aik janwar', 'janwar hai', 'janwar he', 'janwar hay', 'janwar hein', 'janwar hain',
-        'palto', 'paaltu', 'paltoo', 'wafadar janwar', 'jungli janwar', 'jungle', 'jangal', 'chopaya',
-        'nasl', 'nasal', 'breed', 'animal', 'pet', 'pets', 'veterinary', 'bhonkta', 'doodh',
-        'ایک جانور', 'جانور ہے', 'جانور ھے', 'جانور ہیں', 'وفادار جانور', 'پالتو جانور', 'پالتو',
+        'ek janwar', 'aik janwar', 'palto', 'paaltu', 'paltoo', 'wafadar janwar', 
+        'jungli janwar', 'jungle', 'jangal', 'chopaya', 'nasl', 'nasal', 'breed', 
+        'animal', 'pet', 'pets', 'veterinary', 'bhonkta', 'doodh',
+        'ایک جانور', 'وفادار جانور', 'پالتو جانور', 'پالتو',
         'جنگلی جانور', 'جنگل', 'چرند', 'پرند', 'چوپایہ', 'نسل', 'پالا', 'پالتے', 'بھونکتا',
         'کاٹتا', 'گوشت خور', 'گھاس', 'دودھ دینے والا', 'چڑیا گھر'
     ]
@@ -457,14 +504,19 @@ def predict_text_multi_model(text):
         'aap', 'aapko', 'aapka', 'aapki', 'aapke', 'ap',
         'you', 'your', 'yours', 
         'insan', 'insaan', 'banda', 'banday', 'aadmi', 'shakhs', 'aurat',
+        'woh', 'wo', 'yeh', 'ye', 'isay', 'usay', 'inko', 'unko', 'is', 'us',
+        'bhai', 'behan', 'dost', 'yaar', 'beta', 'beti', 'baap',
         'تم', 'تمہیں', 'تم کو', 'تمکو', 'تمہارا', 'تمہاری', 'تمہارے',
         'تو', 'تجھے', 'تجھکو', 'تیرا', 'تیری', 'تیرے',
         'آپ', 'آپکو', 'آپکا', 'آپکی', 'آپکے',
-        'انسان', 'بندہ', 'بندے', 'آدمی', 'شخص', 'عورت', 'لڑکا', 'لڑکی'
-    }
+        'وہ', 'یہ', 'اسے', 'انہیں', 'انکو', 'اس', 'ان',
+        'انسان', 'بندہ', 'بندے', 'آدمی', 'شخص', 'عورت', 'لڑکا', 'لڑکی', 'بھائی', 'بہن', 'دوست'
+    }.union(COMMON_NAMES)
 
     has_noble_animal = bool(text_words.intersection(NOBLE_PRAISE_ANIMALS))
-    has_pejorative_animal = bool(text_words.intersection(PEJORATIVE_ANIMALS))
+    has_pejorative_phrase = any(ph in text_lower for ph in PEJORATIVE_ANIMAL_PHRASES)
+    has_pejorative_animal = bool(text_words.intersection(PEJORATIVE_ANIMALS)) or has_pejorative_phrase
+    has_biological_animal = bool(text_words.intersection(ACTUAL_BIOLOGICAL_ANIMALS))
     has_any_animal = bool(text_words.intersection(ALL_ANIMAL_WORDS)) or any(aw in text_lower for aw in ALL_ANIMAL_WORDS)
     has_explicit_abuse = any(ab in text_lower for ab in EXPLICIT_ABUSE)
     has_praise = any(pr in text_lower for pr in PRAISE_DESCRIPTORS)
@@ -475,6 +527,7 @@ def predict_text_multi_model(text):
             'تم ', 'تو ', 'تیرا ', 'تیری ', 'آپ ', 'انسان ', 'بندہ '
         ]
     )
+    has_common_name = bool(text_words.intersection(COMMON_NAMES))
 
     models_scores = {}
     probs = {}
@@ -556,9 +609,26 @@ def predict_text_multi_model(text):
 
     # ── 3. Hybrid Context Decision Engine & Context Calibration ──
     # Determine context categories
-    is_zoological = (has_zoological_marker or has_any_animal) and not has_human_target and not has_explicit_abuse
-    is_praise = (has_noble_animal or has_praise) and not has_explicit_abuse and not (has_pejorative_animal and not has_praise)
-    is_targeted_insult = has_pejorative_animal and has_human_target and not has_praise and not has_zoological_marker
+    is_targeted_insult = (
+        has_pejorative_phrase or 
+        (has_pejorative_animal and (has_human_target or not has_biological_animal))
+    ) and not has_praise
+
+    is_zoological = (
+        (has_zoological_marker or has_biological_animal) and 
+        not has_human_target and 
+        not is_targeted_insult and 
+        not has_explicit_abuse
+    )
+
+    is_praise = (has_noble_animal or has_praise) and not has_explicit_abuse and not is_targeted_insult
+
+    is_common_name_safe = (
+        has_common_name and 
+        not has_explicit_abuse and 
+        not is_targeted_insult and 
+        not has_pejorative_phrase
+    )
 
     # Ensure all 5 models have a baseline probability before calibration
     for m_key in ['svm', 'naive_bayes', 'random_forest', 'cnn', 'lstm']:
@@ -571,7 +641,10 @@ def predict_text_multi_model(text):
         if has_explicit_abuse:
             p_adj = max(p_raw, 0.95)
         elif is_targeted_insult:
-            p_adj = max(p_raw, 0.85)
+            p_adj = max(p_raw, 0.88)
+        elif is_common_name_safe:
+            # Personal / Entity Name without abuse: scale down offensive probability so models vote Safe (e.g. 0.02 - 0.05)
+            p_adj = min(p_raw * 0.05, 0.05)
         elif is_praise:
             # Praise / Compliment context: scale down offensive probability so models vote Safe (e.g. 0.08 - 0.15)
             p_adj = min(p_raw * 0.15, 0.15)
@@ -612,16 +685,21 @@ def predict_text_multi_model(text):
         final_conf = 0.95
         engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Models Confirming) - Explicit Abuse"
         context_override = False
-    elif is_praise:
-        final_pred = 'non-offensive'
-        final_conf = 0.92
-        engine_name = f"Consensus Ensemble ({safe_votes}/{total_models} Models Confirming) - Praise & Compliment"
-        context_override = True
     elif is_targeted_insult:
         final_pred = 'offensive'
         final_conf = 0.88
         engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Models Confirming) - Targeted Insult"
         context_override = False
+    elif is_common_name_safe:
+        final_pred = 'non-offensive'
+        final_conf = 0.96
+        engine_name = f"Consensus Ensemble ({safe_votes}/{total_models} Models Confirming) - Safe Entity Name"
+        context_override = True
+    elif is_praise:
+        final_pred = 'non-offensive'
+        final_conf = 0.92
+        engine_name = f"Consensus Ensemble ({safe_votes}/{total_models} Models Confirming) - Praise & Compliment"
+        context_override = True
     elif is_zoological:
         final_pred = 'non-offensive'
         final_conf = 0.93
@@ -643,18 +721,39 @@ def predict_text_multi_model(text):
     flagged_words = []
     if has_explicit_abuse:
         for ab in EXPLICIT_ABUSE:
-            if ab in text_lower:
+            if ab in text_lower and ab not in flagged_words:
                 flagged_words.append(ab)
-    if has_pejorative_animal and has_human_target and not has_praise:
+
+    if is_targeted_insult or (has_pejorative_animal and has_human_target and not has_praise):
+        for ph in PEJORATIVE_ANIMAL_PHRASES:
+            if ph in text_lower and ph not in flagged_words:
+                flagged_words.append(ph)
         for pa in PEJORATIVE_ANIMALS:
-            if pa in text_words or pa in text_lower:
+            if (pa in text_words or pa in text_lower) and pa not in flagged_words:
                 flagged_words.append(pa)
     
     if final_pred == 'offensive' and not flagged_words:
-        stop_words = {'hai', 'hain', 'mein', 'kya', 'aur', 'yeh', 'woh', 'kar', 'raha', 'rahe', 'tha', 'the', 'ko', 'se', 'par', 'ki', 'ka', 'ke', 'ne', 'ik', 'ek', 'boht', 'bahut'}
+        stop_words = {
+            'hai', 'hain', 'he', 'hay', 'hein', 'ho', 'hun', 'hoon', 'tha', 'the', 'thi', 'thin',
+            'mein', 'main', 'kya', 'aur', 'yeh', 'ye', 'woh', 'wo', 'kar', 'raha', 'rahe', 'rahi',
+            'ko', 'se', 'par', 'pe', 'ki', 'ka', 'ke', 'kay', 'k', 'ne', 'ik', 'ek', 'aik',
+            'boht', 'bahut', 'bhi', 'to', 'toh', 'hi', 'kuch', 'koi', 'sab', 'jo', 'jis',
+            'tum', 'tumhe', 'tumko', 'tumhara', 'tumhari', 'tumhare', 'tu', 'tujhe', 'tujhko',
+            'teri', 'tera', 'tere', 'aap', 'aapko', 'aapka', 'aapki', 'aapke', 'ap',
+            'mera', 'meri', 'mere', 'hum', 'humein', 'humko', 'hamara', 'hamari', 'hamare',
+            'is', 'us', 'in', 'un', 'isko', 'usko', 'inko', 'unko', 'isay', 'usay',
+            'harkat', 'harkaten', 'harkatein', 'tarah', 'jesa', 'jesi', 'jese', 'jaisi', 'jaisa', 'jaise',
+            'walo', 'wale', 'wali', 'wala', 'baat', 'baatein', 'karo', 'karta', 'karte', 'karti',
+            'ہے', 'ہیں', 'ھے', 'ہو', 'ہوں', 'تھا', 'تھے', 'تھی', 'تھیں',
+            'میں', 'کیا', 'اور', 'یہ', 'وہ', 'کر', 'رہا', 'رہے', 'رہی', 'کو', 'سے', 'پر', 'کی', 'کا', 'کے', 'نے', 'ایک',
+            'بہت', 'بھی', 'تو', 'ہی', 'کچھ', 'کوئی', 'سب', 'جو', 'جس',
+            'تم', 'تمہیں', 'تم کو', 'تمہارا', 'تمہاری', 'تمہارے', 'تو', 'تجھے', 'تیرا', 'تیری', 'تیرے',
+            'آپ', 'آپ کا', 'آپ کی', 'آپ کے', 'میرا', 'میری', 'میرے', 'ہم', 'ہمارا', 'ہماری', 'ہمارے',
+            'حرکت', 'حرکتیں', 'طرح', 'جیسا', 'جیسی', 'جیسے'
+        }
         for w in text_lower.split():
-            clean_w = re.sub(r'\W+', '', w)
-            if len(clean_w) > 2 and clean_w not in stop_words:
+            clean_w = re.sub(r'[\W_]+', '', w, flags=re.UNICODE)
+            if len(clean_w) > 2 and clean_w not in stop_words and clean_w not in COMMON_NAMES:
                 flagged_words.append(clean_w)
                 break
 
@@ -1299,6 +1398,26 @@ def runtime_check():
             
         text = data.get('text', '').strip()
         text_lower = text.lower().strip()
+
+        # 1. Check global admin whitelist/blacklist overrides.json
+        overrides_file = "overrides.json"
+        if os.path.exists(overrides_file):
+            try:
+                with open(overrides_file, 'r', encoding='utf-8') as f:
+                    overrides = json.load(f)
+                if text_lower in overrides:
+                    label = overrides[text_lower]
+                    return jsonify({
+                        'is_offensive': label == 'offensive',
+                        'confidence': 1.0 if label == 'offensive' else 0.0,
+                        'models_scores': {},
+                        'flagged_word': '',
+                        'flagged_words': [],
+                        'context_override': True,
+                        'override_source': 'global'
+                    })
+            except Exception:
+                pass
 
         # Check personal override first (exact match)
         current_user = get_optional_user()
