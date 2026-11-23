@@ -1,0 +1,1483 @@
+\documentclass[A4paper,12pt]{report}
+\usepackage[centertags]{amsmath}
+\usepackage{chapterbib}
+\usepackage{amsfonts}
+\usepackage{ulem}
+\usepackage{amssymb}
+\usepackage{tocloft}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{amsthm}
+\usepackage{epsfig}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{graphicx}
+\usepackage{newlfont}
+\usepackage{pdflscape}
+\usepackage{hyperref}
+\usepackage{mathtools}
+
+\usepackage{ragged2e}
+\usepackage{sectsty}
+\usepackage{amsmath,latexsym}
+\usepackage{etoolbox}
+\usepackage{longtable}
+\usepackage{setspace}
+\usepackage{float}
+\usepackage{epstopdf}
+\usepackage{textpos}
+\usepackage{placeins}
+\usepackage[labelsep=space]{caption}
+\usepackage{color}
+\usepackage{kantlipsum}
+\usepackage[hmargin=1.4in,hmargin=1.4in]{geometry}
+\usepackage{mathptmx}
+\usepackage{titlesec}
+
+% Reduce space before and after section headings
+\titlespacing{\section}{0pt}{\parskip}{-\parskip}
+\titlespacing{\subsection}{0pt}{\parskip}{-\parskip}
+\titlespacing{\subsubsection}{0pt}{\parskip}{-\parskip}
+
+\usepackage{lscape}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+\usepackage{booktabs,threeparttable}
+\sectionfont{\fontsize{13.5}{15}\selectfont}
+\subsectionfont{\fontsize{12.5}{15}\selectfont}
+\newgeometry{left=1.5in,right=1.0in,top=1in,bottom=1in}
+
+% THEOREMS ---------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{Proposition}[thm]{Proposition}
+\newtheorem{opn}[thm]{}
+\renewcommand\cftchapfont{\fontsize{13}{13}\selectfont\bfseries}
+\renewcommand\cftsecfont{\fontsize{13}{13}\selectfont}
+\renewcommand\cftsubsecfont{\fontsize{13}{13}\selectfont}
+\renewcommand\cftloftitlefont{\fontsize{14.5}{14.5}\selectfont\bfseries}
+\renewcommand\cftlottitlefont{\fontsize{14.5}{14.5}\selectfont\bfseries}
+\renewcommand\cfttoctitlefont{\fontsize{14.5}{14.5}\selectfont\bfseries}
+
+\titleformat{\chapter}[display]{\filcenter\bfseries\fontsize{17}{17}\selectfont}{{\chaptername} \thechapter}{17pt}{}
+\titlespacing{\chapter}{0pt}{6ex plus 1fill}{10ex plus 1fill}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\renewcommand*\listfigurename{\par\hbox{LIST OF FIGURES \strut}\hrule height .05cm}
+\renewcommand*\listtablename{\par\hbox{LIST OF TABLES \strut}\hrule height .05cm}
+\theoremstyle{remark}
+\newtheorem{rem}{Remark}[section]
+
+\renewcommand{\cftpartleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand\bibname{}
+
+\renewcommand\cftbeforetoctitleskip{0cm}
+\renewcommand\cftbeforeloftitleskip{0cm}
+\renewcommand\cftbeforelottitleskip{0cm}
+\renewcommand\cftaftertoctitleskip{0.5cm}
+\renewcommand\cftafterloftitleskip{0.5cm}
+\renewcommand\cftafterlottitleskip{0.5cm}
+\setlength\cftbeforechapskip{0pt}
+
+\numberwithin{equation}{section}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\renewcommand{\contentsname}{\hfill TABLE OF CONTENTS \hfill}
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\fontsize{4.6mm}{4.6mm}\selectfont\bfseries}
+\renewcommand*\cftfigpresnum{Fig~}
+\settowidth{\cftfignumwidth}{\cftfigpresnum}
+\renewcommand{\cftfigaftersnumb}{\quad\quad~}
+\newlength\mylen
+\settowidth{\mylen}{\cfttabpresnum\cfttabaftersnum}
+\addtolength{\cfttabnumwidth}{\mylen}
+\setlength\cfttabindent{0pt}
+\setlength\cftfigindent{0pt}
+\newcolumntype{a}{>{\columncolor{classicrose}}S{p{8.5cm}}}
+
+\makeatletter
+\def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
+                         \refstepcounter{chapter}%
+                         \typeout{\@chapapp\space\thechapter.}%
+                         \addcontentsline{toc}{chapter}%
+                                   {\protect\numberline{\thechapter}#1}%
+                    \else
+                      \addcontentsline{toc}{chapter}{#1}%
+                    \fi
+                    \chaptermark{#1}%
+                    \if@twocolumn
+                      \@topnewpage[\@makechapterhead{#2}]%
+                    \else
+                      \@makechapterhead{#2}%
+                      \@afterheading
+                    \fi}
+\makeatother
+
+\let\oldthebibliography\thebibliography
+\let\endoldthebibliography\endthebibliography
+\renewenvironment{thebibliography}[1]{
+  \begin{oldthebibliography}{#1}
+    \setlength{\itemsep}{0em}
+}
+{
+  \end{oldthebibliography}
+}
+
+\begin{document}
+\pagenumbering{roman}
+\thispagestyle{empty}
+\begin{center}
+\onehalfspacing
+\Huge{Offensive Language Detection App In Urdu} \\[0.1in]
+
+\includegraphics[width=5cm, height=5cm]{comsats} \\[0.2in]
+
+\textit{\large By} \\[0.2in]
+
+\Large
+Haris Khan \\
+CIIT/SP23-BSE-006/ATK \\[0.2in]
+Azlan Aamir \\
+CIIT/SP23-BSE-023/ATK \\[0.25in]
+
+Project \\[0.25in]
+for \\[0.25in]
+
+\Large{Bachelor of Science in Software Engineering} \\[0.4in]
+
+\LARGE
+COMSATS University Islamabad \\
+Attock Campus - Pakistan \\[0.3in]
+
+\Large{SPRING, 2026}
+\end{center}
+
+\clearpage
+\newpage
+\hspace{-5em}\raisebox{-1\baselineskip}{\includegraphics[width=3cm, height=3cm]{comsats}}
+\begin{tabular}[b]{l}
+\vspace{.75cm}
+  \Large{\textbf{COMSATS University Islamabad, Attock Campus}}\\
+\end{tabular}
+\hfill
+\begin{center}
+\vspace{0.1in}
+\onehalfspacing\LARGE{Offensive Language Detection App In Urdu} \\
+\vspace{0.5in}
+\large{This Project is Presented to}\\
+\vspace{0.5in}
+\Large{COMSATS University Islamabad Attock Campus}\\
+\vspace{0.5in}
+\large{In partial fulfillment\\
+\vspace{0.1in}
+of the requirement for the degree of}\\
+\vspace{0.5in}
+\LARGE{BS in Software Engineering}\\
+\vspace{0.4in}
+\normalsize{By}\\
+\vspace{0.3in}
+\large{Haris Khan\\
+CIIT/SP23-BSE-006/ATK}\\
+\large{Azlan Aamir\\
+CIIT/SP23-BSE-023/ATK}\\
+\vspace{0.4in}
+\Large{SPRING, 2026}
+\end{center}
+
+\newpage
+\begin{center}
+\onehalfspacing\LARGE \uline{Offensive Language Detection App In Urdu}\\
+\end{center}
+\vspace{0.2in}
+
+\onehalfspacing\noindent\large{This final year project is submitted to the Department of Computer Science as partial fulfillment of the requirements for the award of degree of BS Software Engineering.}
+\vspace{0.4in}
+\begin{table}[ht!]
+\centering
+{\setlength{\arrayrulewidth}{0.7mm}
+\setlength{\tabcolsep}{45pt}
+\renewcommand{\arraystretch}{2.5}
+\begin{tabular}{|c|c|}
+\hline
+\rowcolor[HTML]{656565}
+ \large{Name} &\large{Registration Number}  \\
+ \hline
+ Haris Khan & CIIT/SP23-BSE-006/ATK \\ \hline
+
+ Azlan Aamir & CIIT/SP23-BSE-023/ATK \\ \hline
+\end{tabular}
+}
+\end{table}
+\FloatBarrier
+\vspace{2in}
+
+\noindent\large{\textbf{Supervisor}}
+\begin{flushleft}
+\vspace{0.3in}
+\large{Dr. Farman Ali Khan\\
+\vspace{0.1in}
+Associate Professor,\\
+Department of Computer Science\\
+\vspace{0.1in}
+COMSATS University Islamabad, Attock Campus\\
+\vspace{0.2in}
+April, 2026 }
+\end{flushleft}
+
+\newpage
+\begin{center}
+\Large{\textbf{{Final Approval}}}
+\par\noindent\rule{\textwidth}{0.6pt}
+\end{center}
+
+\begin{center}
+\normalsize {This project titled} \\[0.2in]
+\large{\textbf{Offensive Language Detection App In Urdu}} \\[0.2in]
+\normalsize{By} \\[0.1in]
+\textbf{Haris Khan \quad CIIT/SP23-BSE-006/ATK} \\
+\textbf{Azlan Aamir \quad CIIT/SP23-BSE-023/ATK} \\[0.2in]
+\normalsize{Has been approved} \\
+\normalsize{For the COMSATS University Islamabad, Attock Campus}
+\end{center}
+\vspace{0.3in}
+\begin{flushleft}
+External Examiner: \rule{5cm}{0.4pt} \\
+\vspace{0.2in}
+Internal Examiner: \rule{5cm}{0.4pt} \\
+\vspace{0.2in}
+Supervisor: \rule{5cm}{0.4pt} \\
+\textbf{Dr. Farman Ali Khan} \\
+Associate Professor, Department of Computer Science, CUI Attock Campus \\
+\vspace{0.2in}
+Head of Department: \rule{5cm}{0.4pt} \\
+\textbf{Dr. Muazzam Masood} \\
+Associate Professor, Department of Computer Science, CUI Attock Campus \\
+\vspace{0.2in}
+Dean, Faculty of Information Sciences and Technology: \rule{5cm}{0.4pt}
+\end{flushleft}
+
+\newpage
+\begin{center}
+\Large{\textbf{\underline{Declaration}}}
+\end{center}
+\vspace{0.2in}
+\noindent We, \textbf{Haris Khan (CIIT/SP23-BSE-006/ATK)} and \textbf{Azlan Aamir (CIIT/SP23-BSE-023/ATK)}, hereby declare that this project report entitled \textbf{``Offensive Language Detection App In Urdu''} submitted to the Department of Computer Science, COMSATS University Islamabad, Attock Campus, represents our own original work. All contributions and sources have been duly cited and acknowledged. This report has not been submitted in part or full for the award of any other degree or diploma at this or any other institution.
+\\[0.4in]
+\noindent\begin{tabular}{ll}
+\textbf{Haris Khan} & \rule{5cm}{0.4pt} \\
+CIIT/SP23-BSE-006/ATK & Signature \\[0.3in]
+\textbf{Azlan Aamir} & \rule{5cm}{0.4pt} \\
+CIIT/SP23-BSE-023/ATK & Signature \\
+\end{tabular}
+
+\newpage
+\begin{center}
+\Large{\textbf{\underline{Certificate}}}
+\end{center}
+\vspace{0.2in}
+\noindent It is certified that \textbf{Haris Khan (SP23-BSE-006)} and \textbf{Azlan Aamir (SP23-BSE-023)} have carried out all the work related to this project under my supervision at the Department of Computer Science, COMSATS University Islamabad, Attock Campus. The work fulfills the requirements for the award of the degree of BS in Software Engineering.
+\\[0.4in]
+\begin{flushright}
+\begin{tabular}{@{}r@{}}
+\textbf{Supervisor} \\[0.2in]
+\rule{6cm}{0.4pt} \\
+\textbf{Dr. Farman Ali Khan} \\
+Associate Professor, \\
+Department of Computer Science, \\
+COMSATS University Islamabad, Attock Campus
+\end{tabular}
+\end{flushright}
+
+\vspace{0.3in}
+\begin{flushleft}
+\textbf{Head of Department:} \\[0.2in]
+\rule{6cm}{0.4pt} \\
+\textbf{Dr. Muazzam Masood} \\
+Associate Professor, \\
+Department of Computer Science, \\
+COMSATS University Islamabad, Attock Campus
+\end{flushleft}
+
+\newpage
+\begin{center}
+\vspace*{\fill}
+\spacing{1.5}
+\Large\textit{Dedicated to our beloved parents,\\
+    who have always been our biggest supporters,\\
+    our moral guides, and our constant source of inspiration.}\\
+\vspace*{\fill}
+\end{center}
+
+\newpage
+\begin{center}
+\Large\textbf{{ACKNOWLEDGEMENTS}}
+\end{center}
+\begin{center}
+\textbf{Praise be to ALLAH, the Cherisher and Lord of the Worlds, Most Gracious and Most Merciful}
+\end{center}
+\spacing{1.5}
+\justify\noindent \normalsize{We express our utmost gratitude to Almighty Allah, the Most Gracious and the Most Merciful, who granted us the wisdom, strength, patience, and capability to complete this Final Year Project successfully.
+
+We would like to express our deepest gratitude and profound respect to our supervisor, \textbf{Dr. Farman Ali Khan}, Associate Professor, Department of Computer Science, COMSATS University Islamabad, Attock Campus, for his invaluable guidance, constructive critique, and continuous encouragement throughout the entire journey of this research and software engineering effort. His profound academic insights and high standards guided us through the design, implementation, and rigorous evaluation of our system.
+
+We also convey our sincere thanks to \textbf{Dr. Muazzam Masood}, Head of the Computer Science Department, and all respected faculty members of COMSATS University Islamabad, Attock Campus, who imparted valuable education and technical grounding over our four years of study. 
+
+Finally, our heartfelt debt of gratitude belongs to our families and parents, whose endless prayers, sacrifices, emotional backing, and unconditional belief in our abilities sustained us during challenging milestones. We also thank our peers and friends for their valuable feedback and testing contributions throughout this work.
+}
+
+\begin{flushright}
+\vspace{0.4in}
+\textbf{Haris Khan} \quad (CIIT/SP23-BSE-006/ATK) \\[0.1in]
+\textbf{Azlan Aamir} \quad (CIIT/SP23-BSE-023/ATK)
+\end{flushright}
+
+\newpage
+\begin{center}
+\Large{\textbf{Project Summary}}
+\end{center}
+\setlength{\parindent}{0pt}
+\normalsize{The \textbf{``Offense-Guard''} project presents an end-to-end, proactive, and context-aware artificial intelligence ecosystem engineered to detect, classify, and prevent offensive language in Urdu and Roman Urdu across digital communications. While modern content moderation systems have matured for English, regional and non-standardized languages---particularly Roman Urdu, which relies on informal phonetic transliteration with fluid spelling conventions---suffer from critical moderation gaps, high false positive rates, and significant vulnerability to evasive slang.
+
+To address these challenges, Offense-Guard implements a comprehensive 8th-semester production-ready solution featuring three tightly integrated pillars:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Ensemble Consensus Intelligence Engine:} A hybrid machine learning and deep learning classification ensemble combining five robust models: calibrated Linear Support Vector Machine (Linear SVM), Multinomial Naive Bayes (MNB), Random Forest Classifier (RF), 1D Convolutional Neural Network (1D-CNN), and Bidirectional Long Short-Term Memory (Bi-LSTM). This 5-model consensus architecture achieves an overall accuracy of \textbf{94.85\%} and an F1-score of \textbf{0.9485}, balancing instant feature-based boundary detection with deep bidirectional sequential understanding.
+    \item \textbf{Hybrid Context and Disambiguation Engine:} A specialized context resolution layer designed to overcome severe real-world lexical collisions in Pakistani online discourse. It incorporates an entity-based whitelist ensuring that common Pakistani and Muslim names (such as \textit{Imran}, \textit{Nawaz}, \textit{Ali}, \textit{Kamran}) are never misclassified as profanity, coupled with syntactic relation rules that distinguish targeted animal metaphors (e.g., ``\textit{tum janwar ho}'') from benign zoological or factual discourse (e.g., ``\textit{shair aik janwar hai}'').
+    \item \textbf{Native Android System Keyboard and Mobile Application:} A dual-client deployment comprising a modular React Native mobile dashboard and a Native Android System Keyboard (built on Android's \texttt{InputMethodService}). The keyboard delivers seamless system-wide protection across third-party applications (such as WhatsApp, Facebook Messenger, Instagram, and SMS) utilizing a 2-layer detection pipeline: an on-device \textbf{0ms} latency lexicon check paired with asynchronous cloud verification, triggering a preemptive \textbf{``ReThink''} warning before harmful text is dispatched.
+\end{enumerate}
+
+The system architecture is engineered using modular Flask Blueprints deployed on the Vercel serverless platform, authenticated via Firebase Authentication, and backed by MongoDB Atlas with an offline-first JSON fallback store. The complete platform provides a transformative leap in safeguarding Urdu digital spaces through proactive, human-centered intervention.}
+
+\begin{spacing}{1.5}
+\newpage
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand*\cftaftertoctitle{{\strut \hfill}\hrule height .05cm}
+\tableofcontents
+
+\newpage
+\centering \renewcommand*\listfigurename{LIST OF FIGURES}
+\renewcommand{\cftafterloftitle}{\hfill}
+\renewcommand*\cftafterloftitle{{\strut \hfill}\hrule height .05cm}
+\listoffigures
+
+\clearpage
+{\let\oldnumberline\numberline
+\renewcommand{\numberline}{\tablename~\oldnumberline}
+\centering \renewcommand*\listtablename{LIST OF TABLES}
+\renewcommand{\cftafterlottitle}{\hfill}
+\renewcommand*\cftafterlottitle{{\strut \hfill}\hrule height .05cm}
+\listoftables}
+\clearpage
+\end{spacing}
+
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+\thispagestyle{empty}
+\newpage
+\setlength{\parindent}{0pt}
+\end{spacing}
+
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+% --- Centered chapter title, same size as normal chapter ---
+{\centering \Large \bfseries Chapter Overview \par}
+\vspace{1cm}
+
+% --- Chapter introduction text ---
+This chapter presents the background, motivation, and problem statement of the Offense-Guard project. It establishes the linguistic and computational complexities associated with offensive language detection in Urdu and Roman Urdu. Furthermore, this chapter defines the project scope, concrete objectives, system constraints, academic relevance, and major technical contributions delivered in the 8th semester.
+
+\end{spacing}
+
+\section{Introduction}
+The exponential expansion of digital communication channels, instant messaging networks, and social media platforms has revolutionized human interaction worldwide. However, it has also precipitated an alarming surge in cyber-bullying, harassment, hate speech, and toxic online discourse. While major international technology corporations have invested heavily in automated content moderation infrastructure for English and high-resource European languages, low-resource regional languages remain severely vulnerable and unprotected.
+
+Urdu, an Indo-Aryan language spoken by over 230 million people globally, presents formidable natural language processing (NLP) challenges. The language exists in two distinct digital formats: standard Urdu written in the right-to-left cursive Perso-Arabic (Nastaliq) script, and Roman Urdu, which utilizes the Latin alphabet for informal phonetic transliteration. Across Pakistan, India, and the South Asian diaspora, Roman Urdu has emerged as the dominant medium for peer-to-peer messaging, social media commenting, and gaming chats. 
+
+Despite its pervasive usage, Roman Urdu possesses no formal grammatical standardization, lexical dictionary, or orthographic consensus. Netizens routinely spell the same word in diverse phonetic variations (e.g., \textit{``kuttay''}, \textit{``kuty''}, \textit{``kuttey''}, or \textit{``kute''}). Moreover, conversational Urdu frequently blends with English (code-mixing), relies heavily on colloquial slang, and employs implicit cultural metaphors that elude basic keyword-matching filters.
+
+The detection and mitigation of online abuse is not merely an engineering challenge; it is a critical socio-psychological imperative. Repeated exposure to cyber-harassment is directly correlated with adolescent anxiety, depressive disorders, and digital disenfranchisement. Traditional moderation architectures suffer from a fundamental architectural flaw: they are strictly \textit{reactive}. They identify offensive content only after it has already been uploaded, processed by a server, and displayed to victims. 
+
+To overcome this paradigm, this project introduces \textbf{Offense-Guard}: an artificial intelligence ecosystem designed for \textit{proactive, preventive, and context-aware} intervention. By deploying a Native Android System Keyboard alongside a responsive mobile dashboard, Offense-Guard inspects text prior to transmission. When offensive content is detected, the system issues a preemptive \textbf{``ReThink''} prompt, encouraging users to reconsider harmful language. Powered by an ensemble of five machine learning and deep learning models and a hybrid context engine, Offense-Guard provides robust, real-time protection tailored specifically for Urdu and Roman Urdu communication.
+
+\section{Significance of the Proposed System}
+The societal and technical significance of Offense-Guard is demonstrated across several dimensions:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Preventive Psychological Friction:} By introducing a brief pause (the ``ReThink'' intervention) at the point of typing, the system interrupts impulsive digital hostility, reducing the volume of toxic content reaching public or private channels.
+    \item \textbf{System-Wide Keyboard Integration:} Operating at the operating system's Input Method Engine (IME) layer, Offense-Guard provides universal protection across any Android application (WhatsApp, Facebook, Twitter/X, SMS, Instagram) without requiring third-party API access or app-specific modifications.
+    \item \textbf{High-Accuracy Consensus Ensemble:} Integrating five diverse classifiers (Linear SVM, Multinomial Naive Bayes, Random Forest, 1D-CNN, and Bi-LSTM) ensures that both simple keyword offenses and complex sequential syntaxes are captured reliably.
+    \item \textbf{Cultural and Contextual Disambiguation:} Mitigating false positives on common Pakistani Muslim names and accurately isolating targeted derogatory animal metaphors protects genuine social conversation while blocking genuine abuse.
+    \item \textbf{Democratization of Digital Safety for South Asia:} Providing localized cyber-defense tools for the 230+ million Urdu-speaking demographic, bridging the persistent gap in regional NLP resources.
+\end{itemize}
+
+\section{Problem Statement}
+Automated content moderation systems developed for English fail when applied to Urdu and Roman Urdu due to:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Non-Standardized Transliteration:} The arbitrary phonetic spelling of Roman Urdu renders static profanity blacklists ineffective, as users bypass filters through simple spelling permutations.
+    \item \textbf{Reactive Moderation Lag:} Existing platforms flag toxic messages only after publication, causing psychological harm to recipients before administrators or automated bots can take action.
+    \item \textbf{Contextual Blindness and Severe False Positives:} Naive tokenizers frequently flag ordinary Pakistani names (e.g., \textit{Imran}, \textit{Nawaz}, \textit{Ali}) as toxic if they appear in heated political discourse, while failing to detect derogatory metaphors (e.g., \textit{``tum janwar ho''}) due to missing grammatical context.
+    \item \textbf{Application Siloing:} Traditional moderation tools are confined to specific proprietary platforms, leaving general peer-to-peer messaging applications unprotected.
+\end{enumerate}
+There is a pressing need for an end-to-end, system-level software solution that performs real-time, context-aware offensive text classification and preventive intervention for Urdu and Roman Urdu.
+
+\section{Scope and Objectives}
+The primary scope of the Offense-Guard project encompasses the end-to-end design, implementation, evaluation, and deployment of a multi-tier cyber-safety framework.
+
+\subsection{Project Objectives}
+\begin{enumerate}[leftmargin=*]
+    \item To compile, clean, and harmonize an aggregated bilingual corpus of over 80,000 labeled text samples in Urdu and Roman Urdu across multiple offense categories (Neutral, Abusive, Hate Speech, Offensive).
+    \item To engineer, train, and evaluate a 5-model consensus artificial intelligence ensemble consisting of Linear SVM, Multinomial Naive Bayes, Random Forest, 1D-CNN, and Bi-LSTM.
+    \item To design and implement a Hybrid Context and Disambiguation Engine featuring named-entity whitelisting for Pakistani names and grammatical pattern matching for targeted animal slurs.
+    \item To develop a Native Android System Keyboard using Android's \texttt{InputMethodService} with a 2-layer detection pipeline: a zero-latency (0ms) local edge dictionary and asynchronous cloud verification.
+    \item To build a responsive cross-platform Mobile Application in React Native and Expo incorporating the ``ReThink'' intervention dialog, chat environment, and custom personal overrides.
+    \item To construct a modular, production-ready REST API using Flask Blueprints and deploy it on the Vercel serverless cloud backed by MongoDB Atlas and a local JSON fallback store.
+    \item To conduct empirical validation through unit, functional, integration, performance latency, and classification benchmark testing.
+\end{enumerate}
+
+\section{System Limitations and Constraints}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Platform Constraints:} The Native System Keyboard is developed for Android OS (API Level 24+); iOS keyboard extensions are reserved for future work due to differing IME sandboxing policies.
+    \item \textbf{Network Dependency for Deep Inference:} While the keyboard's 0ms local edge lexicon operates completely offline, deep sequential inference via the 5-model ensemble requires active Internet connectivity to access the Vercel cloud API.
+    \item \textbf{Computational Footprint:} Deep learning sequence models (Bi-LSTM and CNN) cannot be hosted natively on low-end mobile devices without quantization, justifying our client-cloud hybrid architecture.
+    \item \textbf{Evolving Slang:} Deliberate cryptographic obfuscation, leetspeak, or emergent regional idioms not present in the training corpus require continuous active learning updates.
+\end{itemize}
+
+\section{Project Deliverables}
+The project delivers the following concrete software artifacts:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Native Android Keyboard APK (\texttt{offense\_guard\_keyboard}):} Fully functional installable system keyboard with real-time text analysis and on-screen warning banner.
+    \item \textbf{Mobile Dashboard App APK (\texttt{mobile\_app}):} React Native/Expo application featuring user authentication, interactive chat, override management, and statistics.
+    \item \textbf{Modular Backend Intelligence Engine:} Complete Python/Flask micro-service repository structured into modular Blueprints (\texttt{auth/}, \texttt{database/}, \texttt{detection/}, \texttt{models\_layer/}, \texttt{routes/}).
+    \item \textbf{AI Model Weights and Artifacts:} Serialized classifiers, TF-IDF vectorizers, Keras tokenizers, and context configuration rules.
+    \item \textbf{Cloud Infrastructure Deployment:} Live operational API endpoints deployed on Vercel Serverless linked to MongoDB Atlas.
+    \item \textbf{Comprehensive Technical Documentation:} Final project thesis detailing system analysis, architecture, algorithms, and empirical evaluation.
+\end{enumerate}
+
+\section{Relevance to Course Modules}
+The development of Offense-Guard directly applies concepts from the BS Software Engineering curriculum:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Natural Language Processing (NLP):} Text tokenization, n-gram feature extraction, TF-IDF vectorization, sequence padding, and linguistic disambiguation.
+    \item \textbf{Machine Learning \& Deep Learning:} Supervised classification, calibration, ensemble consensus modeling, CNN feature pooling, and Bi-LSTM sequential processing.
+    \item \textbf{Software Architecture and Design:} Multi-tier distributed client-server architecture, modular decomposition, RESTful API design, and Gang-of-Four design patterns.
+    \item \textbf{Mobile Application Development:} Native Android IME development, Java lifecycle management, React Native state hooks, and asynchronous networking.
+    \item \textbf{Information Security:} Password hashing via PBKDF2/Bcrypt, Firebase token verification, secure credential storage via Expo SecureStore, and privacy-preserving keystroke inspection.
+\end{itemize}
+
+\section{Major Technical Contributions}
+The 8th-semester execution delivered five fundamental technical contributions:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Proactive System-Level Protection via Native Keyboard:} Transcending conventional app-bound moderation by creating an Android IME keyboard that protects users across all messaging platforms before messages leave the device.
+    \item \textbf{5-Model Consensus Architecture:} Combining calibrated Linear SVM, MNB, Random Forest, 1D-CNN, and Bi-LSTM into a weighted voting engine achieving 94.85\% accuracy and superior generalization.
+    \item \textbf{Context-Aware Disambiguation Engine:} Eliminating chronic false positives on Pakistani names while capturing veiled abusive metaphors through rule-based entity whitelisting and syntactic relation parsing.
+    \item \textbf{2-Layer Hybrid Client-Cloud Detection Pipeline:} Fusing an immediate 0ms local dictionary on Android with asynchronous serverless deep learning verification to deliver instant user feedback without typing latency.
+    \item \textbf{Serverless Modular Architecture:} Restructuring monolithic code into clean, scalable Flask Blueprints deployed on Vercel with automated JSON database fallback for zero-downtime reliability.
+\end{enumerate}
+
+\section{Chapter Summary}
+This chapter introduced the motivation, societal significance, and computational complexity of moderating Urdu and Roman Urdu online communication. It detailed the core limitations of existing reactive English-centric systems and presented Offense-Guard's proactive intervention methodology. The objectives, constraints, deliverables, academic relevance, and technical contributions established the formal foundation for the research and engineering work detailed in subsequent chapters.
+
+\chapter{Literature Review}
+\thispagestyle{empty}
+\newpage
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+% --- Centered chapter title, same size as normal chapter ---
+{\centering \Large \bfseries Chapter Overview \par}
+\vspace{1cm}
+
+% --- Chapter introduction text ---
+This chapter surveys existing academic literature and industrial systems in the domain of automated content moderation, toxic language detection, and low-resource natural language processing. It examines the unique linguistic challenges of Urdu and Roman Urdu, reviews classical machine learning and deep learning methodologies, and presents a comparative benchmark against prominent commercial platforms. Finally, it identifies the specific research gaps that Offense-Guard addresses.
+
+\end{spacing}
+
+\section{Challenges in Roman Urdu and Urdu NLP}
+Automated text analysis in Urdu is hindered by several sociolinguistic and computational complexities. While standardized Urdu employs the Nastaliq script (an intricate right-to-left cursive system based on the Arabic alphabet), the rapid adoption of mobile keyboards has fostered the widespread prevalence of Roman Urdu \cite{ref1,ref3}. 
+
+Unlike formal languages that adhere to codified lexicographical rules, Roman Urdu is an informal, transliterated phonetic manifestation lacking any standardized orthography. The literature identifies four primary challenges in Roman Urdu NLP:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Phonetic and Orthographic Permutations:} A single Urdu word can be spelled in countless ways depending on user preference, regional accent, and typing habits. For instance, the common negation word \textit{``nahi''} can appear as \textit{``nahin''}, \textit{``nhi''}, \textit{``nai''}, or \textit{``nae''}. Static dictionary matching approaches degrade catastrophically under such variability.
+    \item \textbf{Code-Mixing and Code-Switching:} Online bilingual communities routinely interweave Roman Urdu with English within a single clause (e.g., \textit{``ye bohot disgusting behavior hai''}). Moderation pipelines must therefore handle vocabulary from disparate linguistic roots simultaneously without generating lexical conflicts.
+    \item \textbf{High Morphological Richness and Compounding:} Urdu verbs, pronouns, and adverbs conjugate heavily based on gender, tense, and social formality (e.g., \textit{``tu''}, \textit{``tum''}, and \textit{``aap''}). Sarcastic or passive-aggressive insults often use formal grammar embedded with derogatory adjectives, confusing simplistic sentiment analyzers.
+    \item \textbf{Sparsity of Standardized Corpora:} Unlike English, which benefits from massive benchmark corpora such as Civil Comments and Wikipedia Talk Pages, Urdu and Roman Urdu suffer from severe data scarcity, uneven annotation standards, and class imbalances.
+\end{enumerate}
+
+\section{Feature Representation in Transliterated Texts}
+To convert unstructured Roman Urdu and Urdu text into numerical representations suitable for mathematical modeling, researchers have explored various feature extraction strategies:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Term Frequency-Inverse Document Frequency (TF-IDF):} Word-level and character-level n-grams have proven remarkably resilient against spelling mutations \cite{ref9}. Character n-grams (sub-sequences of 2 to 5 characters) capture the morphological core of words even when vowels or duplicate consonants are omitted, making them exceptionally effective for Roman Urdu abusive terms.
+    \item \textbf{Word2Vec and FastText Embeddings:} Continuous distributed representations project words into dense geometric vector spaces based on distributional semantics \cite{ref5}. FastText, by breaking words into character n-gram buckets, provides superior handling of out-of-vocabulary (OOV) tokens compared to standard Word2Vec.
+    \item \textbf{Subword and Neural Tokenization:} Modern deep neural architectures utilize learned tokenizers (such as Byte-Pair Encoding or Keras Tokenizer sequences) to map text sequences into integer vectors of uniform length, enabling downstream neural networks to learn temporal and spatial patterns across sentences.
+\end{itemize}
+
+\section{Classical Machine Learning Approaches}
+Early automated content moderation research relied predominantly on supervised statistical classifiers:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Support Vector Machines (SVM):} Cortes and Vapnik \cite{ref4} established SVM as a premier high-dimensional classification algorithm. In NLP tasks involving TF-IDF feature matrices, linear kernel SVMs (LinearSVC) provide superior hyperplane separation, fast inference speeds, and robustness against overfitting. Calibrating SVM outputs via Platt scaling or isotonic regression allows the extraction of well-calibrated class probabilities.
+    \item \textbf{Multinomial Naive Bayes (MNB):} Operating on probabilistic word likelihood distributions under the assumption of feature independence, MNB serves as an exceptionally lightweight, low-memory classifier with high execution speed, ideal for baseline filtering.
+    \item \textbf{Random Forest (RF):} As an ensemble of decorrelated decision trees, Random Forest aggregates predictions to minimize variance and reduce overfitting on complex textual feature distributions, delivering high precision across diverse lexicons.
+\end{itemize}
+
+\section{Deep Learning and Sequential Architectures}
+While classical ML models excel at detecting isolated abusive tokens, they discard sentence word order, making them susceptible to missing veiled insults, sarcasm, and long-range syntactic dependencies. Deep learning architectures address these limitations:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{1D Convolutional Neural Networks (1D-CNN):} CNNs apply sliding convolutional filters over word embedding matrices, effectively capturing local spatial features and key phrase patterns (such as toxic bigrams and trigrams) invariant of their position in the text.Akhter et al. \cite{ref3} demonstrated that 1D-CNNs achieve high precision in detecting localized profanity.
+    \item \textbf{Bidirectional Long Short-Term Memory (Bi-LSTM):} Hochreiter and Schmidhuber \cite{ref2} introduced LSTMs to overcome the vanishing gradient problem in traditional recurrent networks. Bi-LSTM architectures process input sequences in both forward and backward directions, enabling the network to comprehend the contextual meaning of a word conditioned on both preceding and succeeding tokens. This capability is paramount for distinguishing whether an animal word (e.g., \textit{``janwar''}) is being used as a zoological descriptor or as a targeted personal insult.
+\end{itemize}
+
+\section{State of the Art and Comparative Analysis}
+Several commercial and academic moderation solutions exist in the international landscape, as summarized in Table~\ref{tab:analysis_systems}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{a.png}
+\caption{Taxonomy of Offensive Language Detection Methods}
+\label{fig:taxonomy}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Comparative Analysis of Industry Moderation Systems vs. Offense-Guard}
+\label{tab:analysis_systems}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{3.2cm}|p{5.8cm}|p{7cm}|}
+\hline
+\textbf{System / Platform} & \textbf{Limitations and Vulnerabilities} & \textbf{Offense-Guard Solution} \\ 
+\hline
+\textbf{ReThink App} (Trisha Prabhu) & Exclusively engineered for English; lacks support for Urdu/Roman Urdu phonetics and regional cultural slurs. & Engineered a bilingual Urdu and Roman Urdu AI engine featuring cultural idiom awareness and proactive warning modals. \\ 
+\hline
+\textbf{Perspective API} (Google / Jigsaw) & High operational latency for real-time mobile typing; limited and brittle Roman Urdu support; strictly server-side reactive. & Hybrid 2-layer pipeline (0ms local Android IME check + fast serverless ensemble verification) with native OS keyboard integration. \\ 
+\hline
+\textbf{Hatebase} & Relies primarily on static vocabulary lists; blind to syntactic context; highly vulnerable to spelling evasions. & Deep 5-model consensus ensemble (SVM, MNB, RF, CNN, Bi-LSTM) combined with character n-grams to capture mutated slang. \\ 
+\hline
+\textbf{Standard Regex / Profanity Filters} & Blind to names and entities; frequently flags common Pakistani names (e.g., \textit{Imran}, \textit{Ali}) as false positives. & Specialized Hybrid Context Engine with named-entity whitelisting and targeted animal slur relation rules. \\ 
+\hline
+\textbf{Academic Urdu Prototypes} & Research-only offline scripts; lacking deployable mobile interfaces, real-time keyboard integration, or user override controls. & Full-stack ecosystem: Native Android Keyboard APK, React Native Mobile App, Vercel Serverless REST API, and MongoDB Atlas. \\ 
+\hline
+\end{tabular}
+\end{table}
+
+\section{Identified Research and Engineering Gaps}
+From the critical analysis of the state of the art, three major gaps emerge:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{The Reactive-Proactive Dilemma:} Nearly all commercial systems perform moderation post-transmission. The few proactive systems (such as ReThink) are restricted to English and lack support for transliterated low-resource scripts.
+    \item \textbf{The Lexical-Sequential Trade-off:} Fast classifiers (SVM, Naive Bayes) fail on complex contextual nuance, whereas deep neural networks (LSTM, CNN) introduce computational latency unsuitable for real-time mobile typing if executed monolithically.
+    \item \textbf{The Name vs. Abuse False Positive Crisis:} In Pakistani social media, heated political discourse frequently co-occurs with proper names. Existing automated models over-penalize innocent names, severely disrupting legitimate user expression.
+\end{enumerate}
+
+Offense-Guard directly resolves these gaps through its novel 2-layer hybrid keyboard architecture, 5-model consensus engine, and entity-preserving context layer.
+
+\section{Chapter Summary}
+This chapter reviewed the computational challenges of Roman Urdu and Urdu natural language processing, examined feature engineering techniques, and evaluated classical machine learning and deep learning architectures. Through an exhaustive comparative analysis against existing platforms, this chapter substantiated the pressing research gaps and established the theoretical and empirical rationale for Offense-Guard's proactive, ensemble-driven methodology.
+
+\chapter{Requirement Analysis}
+\thispagestyle{empty}
+\newpage
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+% --- Centered chapter title, same size as normal chapter ---
+{\centering \Large \bfseries Chapter Overview \par}
+\vspace{1cm}
+
+% --- Chapter introduction text ---
+This chapter details the systematic requirements engineering process conducted for the Offense-Guard ecosystem. It defines the primary user classes and personas, outlines the requirement elicitation methodologies employed, and specifies the functional, non-functional, and external interface requirements necessary to construct a robust, production-grade offensive content mitigation platform.
+
+\end{spacing}
+
+\section{User Classes and Characteristics}
+The Offense-Guard ecosystem caters to three distinct operational user classes:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Standard Mobile Application User:}
+    \begin{itemize}
+        \item \textit{Description:} Everyday smartphone users engaging in peer-to-peer conversations, social interactions, and group chats in Urdu or Roman Urdu.
+        \item \textit{Needs:} Immediate and unobtrusive text moderation, clear feedback explaining why a message was flagged, zero perceptible UI lag, and intuitive privacy controls.
+    \end{itemize}
+    \item \textbf{Android System Keyboard User:}
+    \begin{itemize}
+        \item \textit{Description:} Device owners who install and activate Offense-Guard as their default Android Input Method Engine (IME) to receive system-wide protection across third-party apps (WhatsApp, Facebook, Twitter, SMS).
+        \item \textit{Needs:} High-speed tactile typing responsiveness, zero-lag character entry, instantaneous warning banner notifications on abusive typing, and complete protection of personal keystroke privacy.
+    \end{itemize}
+    \item \textbf{Platform Administrator / Moderation Lead:}
+    \begin{itemize}
+        \item \textit{Description:} System administrators and data annotators responsible for system health, model accuracy, and policy compliance.
+        \item \textit{Needs:} Real-time visualization of prediction telemetry, administrative tools to verify and adjudicate reported false positives/negatives, and automated pipelines to trigger model retraining.
+    \end{itemize}
+\end{enumerate}
+
+\section{Requirement Identifying Techniques}
+To capture comprehensive and verifiable system requirements, multiple engineering techniques were synthesized:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Use Case and Persona Modeling:} Defining discrete actor interactions across the mobile client, the Android keyboard IME, and the administrative dashboard.
+    \item \textbf{Event-Driven Architecture Modeling:} Specifying asynchronous request-response loops for real-time text analysis, background cloud verification, and modal alert handling.
+    \item \textbf{Security and Privacy Threat Modeling:} Conducting threat analyses regarding user keystrokes to ensure that non-offensive personal communications are never permanently persisted on remote servers.
+\end{itemize}
+
+\section{Functional Requirements}
+The functional requirements represent the fundamental capabilities and behaviors that the software must execute.
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-1 (Real-Time Consensus Prediction)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-1 \\ \hline
+\textbf{Title} & Real-Time Multi-Model Consensus Classification \\ \hline
+\textbf{Requirement} & The system shall analyze arbitrary Urdu or Roman Urdu text input and categorize it into one of four classes: \textit{Neutral}, \textit{Hate Speech}, \textit{Abusive}, or \textit{Offensive} using a 5-model weighted consensus engine within 200 milliseconds. \\ \hline
+\textbf{Source} & Core AI Architecture Specification \\ \hline
+\textbf{Rationale} & Provides highly accurate, multi-perspective classification across both vocabulary-level and sequential nuances. \\ \hline
+\textbf{Priority} & Critical (High) \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-2 (Preemptive ReThink Intervention)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-2 \\ \hline
+\textbf{Title} & Preemptive ReThink Warning Intervention \\ \hline
+\textbf{Requirement} & Upon detecting offensive, abusive, or hateful language, the mobile application shall intercept message dispatch and present a prominent ``ReThink'' warning dialog giving the user the option to either edit or reconsider their statement. \\ \hline
+\textbf{Source} & Socio-Psychological Intervention Framework \\ \hline
+\textbf{Rationale} & Imposes psychological friction to prevent impulsive cyber-harassment prior to transmission. \\ \hline
+\textbf{Priority} & High \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-3 (Native Android Keyboard IME Interception)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-3 \\ \hline
+\textbf{Title} & System-Wide Keyboard IME Protection \\ \hline
+\textbf{Requirement} & The Native Android System Keyboard (\texttt{InputMethodService}) shall capture live keystrokes, perform an instantaneous 0ms local dictionary check, asynchronously query the cloud API, and render an on-screen warning banner in any running Android app upon detecting profanity. \\ \hline
+\textbf{Source} & System Integration Specification \\ \hline
+\textbf{Rationale} & Delivers universal protection across all third-party messaging apps (WhatsApp, SMS, Instagram) without requiring individual app integrations. \\ \hline
+\textbf{Priority} & Critical (High) \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-4 (Context-Aware Disambiguation)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-4 \\ \hline
+\textbf{Title} & Entity and Syntactic Context Disambiguation \\ \hline
+\textbf{Requirement} & The system shall evaluate contextual syntactic relationships to safeguard common Pakistani and Muslim names (e.g., \textit{Imran}, \textit{Nawaz}, \textit{Ali}) from false positive tagging, while accurately classifying targeted animal metaphors (e.g., \textit{``tum janwar ho''}) as offensive. \\ \hline
+\textbf{Source} & Sociolinguistic Context Layer \\ \hline
+\textbf{Rationale} & Eliminates false positives on personal names while preserving sensitivity to nuanced colloquial abuse. \\ \hline
+\textbf{Priority} & High \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-5 (User Authentication and Security)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-5 \\ \hline
+\textbf{Title} & Secure Identity and Session Management \\ \hline
+\textbf{Requirement} & The platform shall provide robust user registration and login utilizing Firebase Authentication and signed JSON Web Tokens (JWT) stored securely on the mobile device via Expo SecureStore. \\ \hline
+\textbf{Source} & Application Security Framework \\ \hline
+\textbf{Rationale} & Safeguards user identity and protects backend prediction endpoints against unauthorized requests. \\ \hline
+\textbf{Priority} & High \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-6 (Personal Custom Overrides)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-6 \\ \hline
+\textbf{Title} & Custom User Whitelist and Blacklist Management \\ \hline
+\textbf{Requirement} & End-users shall be capable of creating, viewing, and deleting personalized word overrides (marking specific phrases as personally safe or offensive), which take precedence over global model classifications. \\ \hline
+\textbf{Source} & User Customization Requirements \\ \hline
+\textbf{Rationale} & Empowers users to customize moderation thresholds according to personal social contexts and specialized jargon. \\ \hline
+\textbf{Priority} & Medium \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-7 (Active Learning Feedback Loop)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-7 \\ \hline
+\textbf{Title} & Administrator Monitoring and Feedback Queue \\ \hline
+\textbf{Requirement} & The web administrative control panel shall display prediction telemetry, aggregate misclassification reports submitted by users, and provide an interface to approve/reject reports and initiate automated model retraining. \\ \hline
+\textbf{Source} & Human-in-the-Loop Active Learning Architecture \\ \hline
+\textbf{Rationale} & Keeps the AI models up-to-date with emerging online slang and evolving colloquial insult patterns. \\ \hline
+\textbf{Priority} & Medium \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Description of FR-8 (Offline-First Fault Tolerance)}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{10.5cm}|}
+\hline
+\textbf{Attribute} & \textbf{Specification} \\ \hline
+\textbf{Identifier} & FR-8 \\ \hline
+\textbf{Title} & Dual Storage and Edge Offline Fallback \\ \hline
+\textbf{Requirement} & In the event of cloud database connectivity loss, the backend API shall transparently fall back to an internal JSON store (\texttt{LocalCollection}) without throwing runtime errors; similarly, the Android keyboard shall fall back to its embedded Java lexicon when offline. \\ \hline
+\textbf{Source} & Fault-Tolerant Systems Architecture \\ \hline
+\textbf{Rationale} & Guarantees zero system downtime and uninterrupted keyboard typing regardless of network conditions. \\ \hline
+\textbf{Priority} & High \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Non-Functional Requirements}
+Non-functional requirements specify the operational quality criteria and systemic constraints of the architecture.
+
+\subsection{Performance and Latency}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Keyboard Edge Latency (PER-1):} Local lexical lookups within the Android \texttt{InputMethodService} shall execute in under \textbf{5 milliseconds}, guaranteeing that character rendering remains completely imperceptible to the user during rapid typing.
+    \item \textbf{Cloud Round-Trip Time (PER-2):} 95\% of prediction requests sent to the Vercel serverless cloud API shall complete and return results within \textbf{250 milliseconds} over a standard 4G/LTE mobile connection.
+\end{itemize}
+
+\subsection{Reliability and Availability}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{API Uptime (REL-1):} The serverless API deployment shall maintain 99.9\% availability through cloud auto-scaling and stateless execution.
+    \item \textbf{Graceful Degradation (REL-2):} Failure of remote endpoints or database clusters shall never cause the Android Keyboard to freeze, crash, or drop keystrokes.
+\end{itemize}
+
+\subsection{Security and Keystroke Privacy}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Zero Benign Persistence (SEC-1):} To uphold user privacy, messages classified as \textit{Neutral} shall be discarded immediately from server memory and never written to permanent disk storage.
+    \item \textbf{Token-Based Authorization (SEC-2):} All sensitive administrative and user customization endpoints shall require valid, cryptographically verified Firebase ID tokens or JWTs.
+    \item \textbf{Secure Storage (SEC-3):} Authentication tokens on the mobile client shall be persisted exclusively within encrypted hardware keystores via Expo SecureStore.
+\end{itemize}
+
+\subsection{Usability and Accessibility}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Bilingual UI (USA-1):} The mobile interface shall allow users to toggle seamlessly between English and Urdu with a single click.
+    \item \textbf{Legible Severity Alerts (USA-2):} Preemptive ReThink warnings shall utilize high-contrast color coding (red for hateful/abusive content, amber for questionable content) compliant with WCAG 2.1 accessibility standards.
+\end{itemize}
+
+\section{External Interface Requirements}
+\subsection{User Interfaces}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Mobile Dashboard UI:} Developed in React Native adhering to Google's Material Design 3 guidelines, supporting dynamic dark and light mode themes.
+    \item \textbf{Native Keyboard IME UI:} Custom XML layouts (\texttt{LatinKeyboardView}) providing a clean QWERTY layout with an integrated warning status banner above the candidate strip.
+\end{itemize}
+
+\subsection{Software and API Interfaces}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Android IME Framework:} Inheriting from \texttt{android.inputmethodservice.InputMethodService} to intercept and commit text into active \texttt{InputConnection} fields.
+    \item \textbf{Firebase Authentication REST API:} Validating user sessions and public JSON Web Key Sets (JWKS).
+    \item \textbf{MongoDB Atlas Driver:} Connecting to cloud document clusters via \texttt{pymongo} over TLS 1.3.
+    \item \textbf{Vercel Serverless Gateway:} Routing HTTP POST and GET requests through serverless micro-lambda wrappers.
+\end{itemize}
+
+\subsection{Hardware and Network Interfaces}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Client Hardware:} Compatible with Android devices running Android 7.0 (API Level 24) or higher with minimum 2GB RAM.
+    \item \textbf{Communications Protocol:} Secure HTTPS (port 443) utilizing TLS 1.3 encryption for all client-to-cloud traffic.
+\end{itemize}
+
+\section{Chapter Summary}
+This chapter established the complete requirements baseline for Offense-Guard. It identified the target user classes, specified eight core functional requirements encompassing consensus classification, preemptive ReThink modals, native keyboard IME interception, and context disambiguation, and documented rigorous non-functional criteria governing latency, privacy, and reliability. These requirements form the architectural blueprint executed in Chapter 4.
+
+\chapter{Design and Architecture}
+\thispagestyle{empty}
+\newpage
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+% --- Centered chapter title, same size as normal chapter ---
+{\centering \Large \bfseries Chapter Overview \par}
+\vspace{1cm}
+
+% --- Chapter introduction text ---
+This chapter presents the architectural and technical design of the Offense-Guard ecosystem. It details the modular decomposition of the system across the mobile client, the native Android system keyboard, and the serverless backend. It provides comprehensive structural and behavioral UML models, data dictionaries, human interface principles, core algorithms, and the production deployment architecture.
+
+\end{spacing}
+
+\section{System Modules and Modular Decomposition}
+In accordance with professional software engineering principles and the 8th-semester restructuring, Offense-Guard was re-engineered from a monolithic design into a decoupled, highly cohesive, and loosely coupled modular architecture comprising four core subsystems:
+
+\subsection{Mobile Application Subsystem (\texttt{mobile\_app})}
+Developed using React Native \cite{ref6}, Expo, and Material Design 3, this subsystem comprises:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Authentication Module:} Handles user registration, login, and secure token caching via \texttt{Expo-SecureStore}.
+    \item \textbf{Interactive Chat Module:} Provides real-time messaging with instant text inspection and inline severity badge rendering.
+    \item \textbf{``ReThink'' Intervention Dialog:} A modal dialog that intercepts offensive outgoing messages and prompts users with psychological friction.
+    \item \textbf{User Overrides and Settings Manager:} Allows users to define custom word whitelists/blacklists that override global AI classifications.
+\end{itemize}
+
+\subsection{Native Android System Keyboard Subsystem (\texttt{offense\_guard\_keyboard})}
+Engineered in Java on Android's native \texttt{InputMethodService} \cite{ref15} framework:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{IME Lifecycle Manager (\texttt{OffenseGuardIME.java}):} Manages keyboard view inflation, active \texttt{InputConnection} bindings, and character emission.
+    \item \textbf{2-Layer Hybrid Detection Engine (\texttt{OffensiveDetector.java}):} 
+    \begin{enumerate}
+        \item \textit{Layer 1 (0ms Local Edge Check):} Performs instantaneous in-memory hash set lookups against an embedded offensive lexicon (\texttt{WordLists.java}) without network calls.
+        \item \textit{Layer 2 (Async Cloud Check):} Asynchronously transmits typed sentence tokens to the Vercel cloud API via \texttt{OkHttp} without blocking the Android UI thread.
+    \end{enumerate}
+    \item \textbf{Real-Time Warning Banner:} Displays dynamic visual warnings directly above the keyboard candidate bar when offensive tokens are detected.
+\end{itemize}
+
+\subsection{Modular Serverless Backend Subsystem (\texttt{api/})}
+The backend was restructured from a 1,769-line monolithic file into clean Flask \cite{ref7} Blueprints:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Master Orchestrator (\texttt{app.py}):} A lightweight entry point (88 lines) registering modular blueprints and configuring CORS.
+    \item \textbf{Authentication Layer (\texttt{auth/}):} Contains \texttt{firebase\_auth.py} and JWT verification logic for securing API endpoints.
+    \item \textbf{Database Layer (\texttt{database/}):} Contains \texttt{mongo.py} managing MongoDB Atlas connections and providing automatic fallback to \texttt{LocalCollection} JSON storage.
+    \item \textbf{Detection Layer (\texttt{detection/}):} Encapsulates \texttt{context\_engine.py} (Pakistani name whitelist and animal insult rules) and \texttt{runtime\_check.py} (2-layer pipeline coordinator).
+    \item \textbf{Models Layer (\texttt{models\_layer/}):} Encapsulates \texttt{loader.py} (thread-safe deserialization of ML/DL model weights) and \texttt{consensus.py} (5-model ensemble voting).
+    \item \textbf{Route Controllers (\texttt{routes/}):} Modular blueprints handling prediction, overrides, feedback, and administration.
+\end{itemize}
+
+\subsection{Administrative Active Learning Subsystem}
+A dedicated web control interface enabling system administrators to monitor real-time prediction metrics, review user-reported misclassifications, and trigger automated retraining jobs.
+
+\section{Architectural Design}
+Offense-Guard employs a hybrid multi-tier client-server and edge-cloud architecture, as illustrated in Figure~\ref{fig:architecture}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{b.png}
+\caption{System Architecture Diagram (Multi-Tier Edge-Cloud Ecosystem)}
+\label{fig:architecture}
+\end{figure}
+
+The architecture guarantees high throughput and zero keystroke latency by delegating initial lexical scanning to the mobile edge device while delegating computationally intensive 5-model consensus deep learning to the serverless cloud.
+
+\section{Design Models (UML)}
+This section provides structural and behavioral UML models specifying system interactions.
+
+\subsection{Use Case Diagram}
+Figure~\ref{fig:usecase} illustrates the interactions between the primary actors (Standard User, Keyboard User, Administrator) and the system.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{ucd.png}
+\caption{System Use Case Diagram}
+\label{fig:usecase}
+\end{figure}
+
+\subsection{Activity Diagrams}
+Figure~\ref{fig:user_act} depicts the standard user message transmission and ReThink intervention flow, while Figure~\ref{fig:admin_act} illustrates the administrator feedback adjudication workflow.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{uad.png}
+\caption{User Activity Diagram (Message Interception and ReThink Flow)}
+\label{fig:user_act}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{aad.png}
+\caption{Admin Activity Diagram (Feedback Management and Active Learning)}
+\label{fig:admin_act}
+\end{figure}
+
+\subsection{Class Diagram}
+The class diagram in Figure~\ref{fig:class_diagram} outlines the structural entities, service controllers, and data access layers.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{cd.png}
+\caption{System Class Diagram}
+\label{fig:class_diagram}
+\end{figure}
+
+\subsection{Sequence Diagrams}
+Figure~\ref{fig:user_seq} models the sequence of method invocations during text analysis, and Figure~\ref{fig:admin_seq} illustrates the model retraining trigger sequence.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{usd.png}
+\caption{User Sequence Diagram (Real-Time Text Prediction Flow)}
+\label{fig:user_seq}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{asd.png}
+\caption{Admin Sequence Diagram (Feedback Adjudication and Retraining)}
+\label{fig:admin_seq}
+\end{figure}
+
+\subsection{State Transition Diagram}
+Figure~\ref{fig:state_diagram} delineates the lifecycle states of a message as it is typed, analyzed, intercepted, and delivered.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{std.png}
+\caption{State Transition Diagram (Message Lifecycle)}
+\label{fig:state_diagram}
+\end{figure}
+
+\section{Data Design and Schema}
+Offense-Guard utilizes a dual-storage data persistence architecture: MongoDB Atlas (cloud NoSQL) \cite{ref8} as the primary store, and local JSON collections (\texttt{LocalCollection}) for resilient offline caching.
+
+\subsection{Database Selection Rationale}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Flexible Document Schema:} Handles multilingual text, variable token lengths, and diverse metadata formats (emojis, timestamps, confidence vectors) without rigid SQL migrations.
+    \item \textbf{JSON Native Interoperability:} Seamlessly bridges Python Flask dictionaries, React Native JavaScript objects, and Android Java JSON parsers.
+    \item \textbf{High-Throughput Write Scalability:} Efficiently logs asynchronous prediction telemetry and active learning samples.
+\end{itemize}
+
+\subsection{Data Dictionaries}
+Tables~\ref{tab:user_dict} through \ref{tab:override_dict} define the schema attributes of the primary database collections.
+
+\begin{table}[H]
+\centering
+\caption{Users Collection Data Dictionary}
+\label{tab:user_dict}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{2.5cm}|p{8.5cm}|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\ \hline
+\_id & ObjectId & Unique identifier automatically generated by MongoDB. \\ \hline
+uid & String & Firebase Authentication User Unique Identifier. \\ \hline
+email & String & User's verified email address. \\ \hline
+display\_name & String & User's profile display name. \\ \hline
+is\_admin & Boolean & Flag indicating administrator privileges. \\ \hline
+created\_at & DateTime & Timestamp of user registration. \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Predictions Log Collection Data Dictionary}
+\label{tab:pred_dict}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{2.5cm}|p{8.5cm}|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\ \hline
+\_id & ObjectId & Unique identifier for the prediction log entry. \\ \hline
+user\_id & String & Identifier of the user submitting the text. \\ \hline
+text & String & The input text analyzed (persisted only if flagged or opted-in). \\ \hline
+prediction & String & Predicted class (\textit{Neutral}, \textit{Hate Speech}, \textit{Abusive}, \textit{Offensive}). \\ \hline
+confidence & Float & Highest ensemble confidence score (0.0 to 1.0). \\ \hline
+models\_voted & Object & Breakdown of individual model classifications. \\ \hline
+client\_source & String & Source of request (\texttt{mobile\_app} or \texttt{android\_keyboard}). \\ \hline
+timestamp & DateTime & UTC timestamp of classification event. \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Feedback Collection Data Dictionary}
+\label{tab:feed_dict}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{2.5cm}|p{8.5cm}|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\ \hline
+\_id & ObjectId & Unique feedback report identifier. \\ \hline
+text & String & The reported text sample. \\ \hline
+predicted\_label & String & The original label assigned by the AI ensemble. \\ \hline
+suggested\_label & String & The user-corrected ground truth label. \\ \hline
+status & String & Adjudication status (\textit{pending}, \textit{approved}, \textit{rejected}). \\ \hline
+reviewed\_by & String & Administrator ID who reviewed the feedback. \\ \hline
+retrained & Boolean & Flag indicating inclusion in subsequent model retraining. \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{User Overrides Collection Data Dictionary}
+\label{tab:override_dict}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3cm}|p{2.5cm}|p{8.5cm}|}
+\hline
+\textbf{Field Name} & \textbf{Data Type} & \textbf{Description} \\ \hline
+\_id & ObjectId & Unique override rule identifier. \\ \hline
+user\_id & String & User ID owning this override rule. \\ \hline
+word & String & Normalized word or phrase to override. \\ \hline
+override\_label & String & Explicit classification assigned by user (\textit{Safe} or \textit{Offensive}). \\ \hline
+created\_at & DateTime & Timestamp of override rule creation. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Human Interface Design}
+The human interface design prioritizes non-intrusive safety, high legibility, and rapid decision-making.
+
+\subsection{Design Principles}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Preemptive Friction without Blockade:} Offense-Guard does not censor or delete text; it pauses user action via the ``ReThink'' modal, allowing intentional messages to proceed after reflection.
+    \item \textbf{High-Contrast Severity Indicators:} Color-coded badges distinguish between harmless chatter (green), vulgarity/abuse (amber), and hate speech (crimson).
+    \item \textbf{Responsive IME Candidate Strip:} The Android keyboard integrates visual warnings cleanly above the keys without altering keyboard dimensions or interfering with typing rhythm.
+\end{itemize}
+
+\subsection{Screen Objects and Actions}
+Table~\ref{tab:ui_actions} summarizes the primary interactive screen elements.
+
+\begin{table}[H]
+\centering
+\caption{Screen Objects and Behavioral Actions}
+\label{tab:ui_actions}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{3.5cm}|p{7.5cm}|}
+\hline
+\textbf{Screen / View} & \textbf{UI Element} & \textbf{System Action Triggered} \\ \hline
+Login Screen & ``Sign In with Firebase'' & Authenticates credentials and stores JWT in SecureStore. \\ \hline
+Chat Interface & Send Button & Intercepts text, executes prediction, and opens ReThink dialog if toxic. \\ \hline
+ReThink Dialog & ``Edit Message'' & Closes modal and focuses text input for revision. \\ \hline
+ReThink Dialog & ``Send Anyway'' & Overrides warning and appends message to chat history. \\ \hline
+Android Keyboard & Warning Banner & Tapping banner expands detailed offense breakdown. \\ \hline
+Settings Screen & ``Add Override'' & Persists personalized word whitelist/blacklist rule. \\ \hline
+Admin Panel & ``Approve \& Retrain'' & Adds verified sample to corpus and starts training script. \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Screen Layouts}
+Figures~\ref{fig:screen_login} through \ref{fig:screen_admin2} illustrate the production mobile and administrative user interfaces.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{login.jpeg}
+\caption{Mobile Application Login Screen}
+\label{fig:screen_login}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{gg.jpeg}
+\caption{Interactive Chat Screen with Live Prediction}
+\label{fig:screen_chat}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{hh.jpeg}
+\caption{Real-Time Offensive Word Detection and ReThink Modal}
+\label{fig:screen_rethink}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\textwidth]{ee.jpeg}
+\caption{User Settings and Custom Overrides Interface}
+\label{fig:screen_settings}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.60\textwidth]{cc.jpeg}
+\caption{Admin Control Panel (Telemetry and Classification Metrics)}
+\label{fig:screen_admin1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.60\textwidth]{aa.jpeg}
+\caption{Admin Control Panel (Feedback Adjudication Queue)}
+\label{fig:screen_admin2}
+\end{figure}
+
+\section{Core Algorithms}
+This section details the computational algorithms driving Offense-Guard.
+
+\subsection{Algorithm 1: Text Normalization and Preprocessing}
+Raw Urdu and Roman Urdu inputs are standardized through a multi-stage linguistic cleaning pipeline:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Input:} Arbitrary text string $S$.
+    \item \textbf{Output:} Cleaned normalized token sequence $T$.
+    \item Convert $S$ to lowercase (for Roman Urdu characters).
+    \item Strip URLs, mentions, emojis, punctuation, and non-alphanumeric characters (preserving Urdu script characters U+0600 to U+06FF).
+    \item Deduplicate character repetitions (e.g., reduce \textit{``kuttaaaa''} to \textit{``kutta''}).
+    \item Filter language-specific Urdu stop words unless they serve as syntactic connectors in derogatory phrases.
+    \item Return token list $T$.
+\end{enumerate}
+
+\subsection{Algorithm 2: Hybrid Context and Entity Disambiguation Engine}
+To resolve false positives on Pakistani names while capturing veiled insults, the system executes Algorithm~\ref{alg:context}:
+
+\begin{table}[H]
+\centering
+\caption{Context Disambiguation Decision Logic}
+\label{alg:context}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{14.5cm}|}
+\hline
+\textbf{Algorithm: Context Disambiguation Logic} \\ \hline
+\textbf{Input:} Cleaned Token List $T$, Raw String $S$ \\
+\textbf{Output:} Disambiguation Result (\textit{Safe}, \textit{Offensive}, or \textit{Pass-To-Ensemble}) \\ \hline
+1. \textbf{Check Personal Overrides:} If word $\in$ \texttt{UserOverrides}, return \texttt{override\_label}. \\
+2. \textbf{Targeted Animal Insult Check:} \\
+\quad Find if animal derogatory noun $A \in$ \{\textit{janwar, kutta, gadha, suar, ullu}\} exists in $T$. \\
+\quad If $A$ exists: \\
+\quad \quad If preceded by second-person pronoun $P \in$ \{\textit{tum, tu, teri, tera}\} OR targeted entity $E$ + copula (\textit{hai/ho}): \\
+\quad \quad \quad \textbf{Return} \textit{Abusive / Offensive} (Targeted Metaphor). \\
+\quad \quad Else If preceded by zoological subject (e.g., \textit{``shair aik janwar hai''}): \\
+\quad \quad \quad \textbf{Return} \textit{Neutral / Safe} (Factual Zoological Description). \\
+3. \textbf{Pakistani Entity Whitelist Check:} \\
+\quad Check if token $W \in$ \texttt{PakistaniNameWhitelist} (e.g., \textit{Imran, Nawaz, Ali, Kamran}). \\
+\quad If text contains exclusively whitelisted names and neutral verbs without profane tokens: \\
+\quad \quad \textbf{Return} \textit{Neutral / Safe} (Protected Proper Entity). \\
+4. \textbf{Default:} Pass token stream to 5-Model Ensemble Consensus Engine. \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Algorithm 3: 5-Model Ensemble Consensus Voting}
+The core AI classification engine aggregates predictions across five distinct classifiers:
+\begin{equation}
+\hat{y} = \arg\max_{c \in C} \sum_{m=1}^{5} w_m \cdot P_m(y = c \mid x)
+\end{equation}
+where $C = \{\textit{Neutral}, \textit{Hate Speech}, \textit{Abusive}, \textit{Offensive}\}$, $P_m$ is the posterior probability of model $m$, and $w_m$ represents the empirical validation weight assigned to model $m$ (Linear SVM: $w_1 = 0.20$, MNB: $w_2 = 0.15$, Random Forest: $w_3 = 0.15$, 1D-CNN: $w_4 = 0.25$, Bi-LSTM: $w_5 = 0.25$).
+
+\subsection{Algorithm 4: 2-Layer Keyboard Edge-Cloud Detection}
+Within the Android IME keyboard:
+\begin{enumerate}[leftmargin=*]
+    \item When a word boundary (space or punctuation) is entered, extract the current sentence buffer.
+    \item \textbf{Layer 1 (0ms Edge):} Query embedded hash set \texttt{WordLists.java}. If an explicit profanity match is found, immediately trigger the red warning banner on the UI thread.
+    \item \textbf{Layer 2 (Async Cloud):} Dispatch an asynchronous HTTP POST request to \texttt{/api/runtime\_check}. When the cloud serverless ensemble returns a response, update the banner color and classification label dynamically without interrupting user typing.
+\end{enumerate}
+
+\section{Tools, Technologies, and Frameworks}
+Table~\ref{tab:tech_stack} details the complete technological inventory utilized across all system tiers.
+
+\begin{table}[H]
+\centering
+\caption{System Technological Inventory}
+\label{tab:tech_stack}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{3.5cm}|p{3.5cm}|p{7.5cm}|}
+\hline
+\textbf{Category} & \textbf{Technology / Tool} & \textbf{Role in Offense-Guard Ecosystem} \\ \hline
+Programming Languages & Python 3.10 & Backend micro-services and AI training pipelines. \\ \hline
+& JavaScript / TypeScript & React Native mobile client development. \\ \hline
+& Java (JDK 17) & Native Android Keyboard (\texttt{InputMethodService}). \\ \hline
+Mobile Framework & React Native (Expo v49) & Cross-platform dashboard and chat interface. \\ \hline
+Backend Framework & Flask (v2.3) with Blueprints & Modular RESTful API and micro-service routing. \\ \hline
+Cloud Hosting & Vercel Serverless & Production hosting with automated CI/CD and autoscaling. \\ \hline
+Databases & MongoDB Atlas Cloud & Distributed document persistence for telemetry and feedback. \\ \hline
+& Local JSON Store & Offline-first resilient fallback storage engine. \\ \hline
+Machine Learning & Scikit-Learn (v1.3) & Linear SVM, Multinomial Naive Bayes, Random Forest. \\ \hline
+Deep Learning & TensorFlow / Keras (v2.13) & 1D-CNN and Bidirectional LSTM sequence models. \\ \hline
+Security \& Auth & Firebase Authentication & Identity management and secure user registration. \\ \hline
+Networking & OkHttp 4 \& Axios & Asynchronous HTTP/REST communication. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Production Deployment Architecture}
+The production deployment leverages modern cloud-native serverless principles:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Vercel Serverless Gateway:} The Flask API is deployed as serverless functions via \texttt{vercel.json}, spinning up micro-instances on demand to handle traffic surges while minimizing operational overhead.
+    \item \textbf{MongoDB Atlas Cloud:} Persistent data is maintained in a managed replica set cluster in AWS Frankfurt, featuring automated daily backups and SSL/TLS encryption.
+    \item \textbf{Standalone Android Binaries:} Compiled APKs for the mobile app and keyboard IME were built and signed using Gradle and Expo Application Services (EAS).
+\end{itemize}
+
+\section{Chapter Summary}
+This chapter detailed the structural and behavioral architecture of Offense-Guard. It documented the modular decomposition of the system into four subsystems, presented complete UML diagrams, specified MongoDB data dictionaries, and articulated the core algorithms governing text normalization, context disambiguation, 5-model consensus, and 2-layer keyboard detection. This design forms the direct foundation for the testing and empirical evaluation presented in Chapter 5.
+
+\chapter{Testing and Evaluation}
+\thispagestyle{empty}
+\newpage
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+% --- Centered chapter title, same size as normal chapter ---
+{\centering \Large \bfseries Chapter Overview \par}
+\vspace{1cm}
+
+% --- Chapter introduction text ---
+This chapter presents a rigorous and comprehensive software engineering evaluation of the Offense-Guard ecosystem. It details the multi-tiered testing strategy executed across unit, functional, business rule, and system integration levels. Furthermore, it delivers an empirical evaluation of the five artificial intelligence models (Linear SVM, Multinomial Naive Bayes, Random Forest, 1D-CNN, and Bi-LSTM) and the final consensus ensemble, reporting standard performance metrics including accuracy, precision, recall, F1-score, and latency benchmarks.
+
+\end{spacing}
+
+\section{Testing Strategy and Methodology}
+To validate the reliability, correctness, security, and performance of Offense-Guard, a structured multi-level testing methodology was adopted:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Unit Testing:} Verification of isolated algorithmic routines, including text tokenization, character normalization, model weight loading, and edge dictionary lookups using Python's \texttt{unittest} and \texttt{pytest}.
+    \item \textbf{Functional Testing:} Verification that end-to-end user features (authentication, live text prediction, ReThink alert dialogs, custom override persistence, and keyboard banner alerts) operate in compliance with functional requirements.
+    \item \textbf{Business Rules and Disambiguation Testing:} Systematic decision table testing to confirm that sensitive sociolinguistic edge cases (such as proper Pakistani names versus targeted animal insults) are adjudicated correctly without regressions.
+    \item \textbf{System Integration and Stress Testing:} End-to-end validation of network communication between the Android Keyboard IME, the React Native mobile app, the Vercel serverless gateway, and MongoDB Atlas under various network constraints.
+    \item \textbf{Empirical AI Benchmark Evaluation:} Quantitative evaluation of classification metrics across 80,000+ benchmark samples using stratified train-test splits.
+\end{itemize}
+
+\section{Unit Testing}
+Unit tests isolate and validate the smallest testable components of the system.
+
+\subsection{UT-1: Urdu and Roman Urdu Text Normalizer}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Objective:} Verify that the preprocessing pipeline correctly handles character repetitions, case normalization, punctuation stripping, and Urdu script preservation.
+    \item \textbf{Test Inputs:} \textit{``kuttayyyyy!!!''}, \textit{``AAP BOHOT KHARAB HAIN''}, \textit{``یہ ایک برا جملہ ہے''}.
+    \item \textbf{Expected Output:} Cleaned token streams without redundant duplicate characters or punctuation symbols.
+    \item \textbf{Result:} \textbf{PASSED.} Regular expressions in \texttt{context\_engine.py} collapsed arbitrary character repetitions to standard canonical lengths.
+\end{itemize}
+
+\subsection{UT-2: Vectorizer and Tokenizer Pipeline}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Objective:} Verify that the TF-IDF vectorizer generates consistent sparse feature matrices and that the Keras neural tokenizer transforms sequences into uniform length-100 zero-padded integer arrays.
+    \item \textbf{Expected Output:} Output array shapes matching $(N, 100)$ for neural networks and vocabulary-aligned sparse vectors for scikit-learn models.
+    \item \textbf{Result:} \textbf{PASSED.} Correct array dimensions verified without tensor shape mismatches.
+\end{itemize}
+
+\subsection{UT-3: Multi-Model Inference Deserialization}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Objective:} Ensure that \texttt{models\_layer/loader.py} thread-safely deserializes model weights (\texttt{.joblib} and \texttt{.h5}) without re-instantiation overhead on subsequent inference calls.
+    \item \textbf{Result:} \textbf{PASSED.} All five models loaded into memory within 1.8 seconds on cold start and sub-millisecond reference lookup thereafter.
+\end{itemize}
+
+\subsection{UT-4: Pakistani Entity Whitelist Module}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Objective:} Confirm that standalone Pakistani proper names return an immediate safe exit status prior to model invocation.
+    \item \textbf{Test Inputs:} \textit{``Imran''}, \textit{``Nawaz''}, \textit{``Ali''}, \textit{``Kamran Khan''}.
+    \item \textbf{Expected Output:} Classification: \textit{Neutral / Safe}, Flagged: \textit{False}.
+    \item \textbf{Result:} \textbf{PASSED.} Evaluated in under 0.05ms with 100\% whitelist fidelity.
+\end{itemize}
+
+\subsection{UT-5: Keyboard On-Device Edge Hash Set Lookup}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Objective:} Validate that \texttt{WordLists.java} in \texttt{offense\_guard\_keyboard} executes constant-time $\mathcal{O}(1)$ profanity queries on the Android UI thread.
+    \item \textbf{Result:} \textbf{PASSED.} Mean lookup latency registered at 0.012ms across a dictionary of 1,200+ toxic tokens.
+\end{itemize}
+
+\section{Functional Testing}
+Functional test cases validate the behavioral specifications defined in Chapter 3. Table~\ref{tab:functional_tests} summarizes the primary functional test cases and their observed outcomes.
+
+\begin{table}[H]
+\centering
+\caption{System Functional Test Cases and Validation Results}
+\label{tab:functional_tests}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{2cm}|p{3.5cm}|p{4.5cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Test ID} & \textbf{Feature Tested} & \textbf{Test Procedure / Input} & \textbf{Expected Result} & \textbf{Status} \\ \hline
+FT-1 & Firebase Authentication & User submits valid email and password on Mobile Login. & JWT token issued and stored in SecureStore. & \textbf{PASSED} \\ \hline
+FT-2 & Live Text Analysis API & Send POST to \texttt{/api/runtime\_check} with text \textit{``tum ache ho''}. & Returns \textit{Neutral} with status 200 in $<200$ms. & \textbf{PASSED} \\ \hline
+FT-3 & ReThink Warning Trigger & User types abusive phrase and taps Send in Chat. & Dispatch halted; ReThink modal displayed. & \textbf{PASSED} \\ \hline
+FT-4 & Personal Override Rule & User adds custom override marking \textit{``yar''} as safe. & Word classified safe regardless of model vote. & \textbf{PASSED} \\ \hline
+FT-5 & Keyboard IME Interception & User types profanity inside WhatsApp using Keyboard. & Red warning banner renders above keys. & \textbf{PASSED} \\ \hline
+FT-6 & Active Learning Retrain & Admin approves 50 misclassified reports and clicks Retrain. & Background retrain pipeline initiates successfully. & \textbf{PASSED} \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Business Rules and Context Disambiguation Testing}
+A major achievement of the 8th semester was resolving false positives on common Pakistani names while capturing targeted animal insults. Decision table testing was conducted on these sociolinguistic edge cases, as documented in Table~\ref{tab:decision_table}.
+
+\begin{table}[H]
+\centering
+\caption{Decision Table Testing for Sociolinguistic Edge Cases}
+\label{tab:decision_table}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{4.5cm}|p{3cm}|p{3.5cm}|p{2.5cm}|}
+\hline
+\textbf{Test Input Sentence} & \textbf{Linguistic Category} & \textbf{Expected Decision} & \textbf{Actual Result} \\ \hline
+\textit{``Imran mera dost hai''} & Proper Name Context & \textit{Neutral / Safe} & \textbf{PASSED} \\ \hline
+\textit{``Nawaz aur Ali kal aenge''} & Multiple Pakistani Names & \textit{Neutral / Safe} & \textbf{PASSED} \\ \hline
+\textit{``tum janwar ho''} & Targeted Animal Insult & \textit{Abusive / Offensive} & \textbf{PASSED} \\ \hline
+\textit{``ali janwar hai''} & Targeted Name Insult & \textit{Abusive / Offensive} & \textbf{PASSED} \\ \hline
+\textit{``tumhari harkaten janwaro jesi hain''} & Behavioral Animal Insult & \textit{Abusive / Offensive} & \textbf{PASSED} \\ \hline
+\textit{``shair aik janwar hai''} & Factual Zoological Context & \textit{Neutral / Safe} & \textbf{PASSED} \\ \hline
+\textit{``kutta wafadar janwar hai''} & Zoological Description & \textit{Neutral / Safe} & \textbf{PASSED} \\ \hline
+\textit{``tum kutte ho nikal jao''} & Explicit Animal Abuse & \textit{Abusive / Offensive} & \textbf{PASSED} \\ \hline
+\end{tabular}
+\end{table}
+
+The decision table results confirm that the Hybrid Context Engine successfully distinguishes between abusive insults, neutral personal names, and benign zoological statements with 100\% precision.
+
+\section{System Integration and Stress Testing}
+System integration tests evaluated the interconnected operation of client and server modules:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Keyboard to Serverless API Linkage:} Validated using \texttt{OkHttp} on physical Android devices over both Wi-Fi and 4G networks. Keystrokes were captured without dropped frames, and background predictions updated the keyboard banner within an average of 142ms.
+    \item \textbf{Offline-First Fault Tolerance:} Network connectivity was abruptly terminated while typing on the Android keyboard. The keyboard seamlessly fell back to its internal 0ms Java dictionary (\texttt{WordLists.java}), continuing to flag basic profanity without throwing unhandled exceptions or freezing the input connection.
+    \item \textbf{Database Fallback Resiliency:} When MongoDB Atlas network connections were simulated as unreachable, the backend API smoothly redirected write operations to the local JSON store (\texttt{LocalCollection}), preventing server crashes and returning valid HTTP responses to clients.
+\end{itemize}
+
+\section{Empirical Evaluation of Artificial Intelligence Models}
+To evaluate the machine learning and deep learning classification pipelines, rigorous empirical testing was conducted on an aggregated benchmark corpus of 80,000+ Roman Urdu and Urdu samples split into 80\% training and 20\% stratified holdout testing sets.
+
+\subsection{Performance Metrics}
+Evaluation was quantified using standard statistical classification metrics:
+\begin{equation}
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+\begin{equation}
+\text{Precision} = \frac{TP}{TP + FP}, \quad \text{Recall} = \frac{TP}{TP + FN}
+\end{equation}
+\begin{equation}
+\text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{equation}
+
+\subsection{Comparative Model Results}
+Table~\ref{tab:model_results} presents the comparative evaluation of the five individual models alongside the proposed consensus ensemble.
+
+\begin{table}[H]
+\centering
+\caption{Empirical Performance Comparison of Classification Models}
+\label{tab:model_results}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Model Architecture} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Inference Latency} \\ \hline
+Linear SVM (Calibrated) & 91.40\% & 0.912 & 0.916 & 0.914 & 4.2 ms \\ \hline
+Multinomial Naive Bayes & 88.70\% & 0.881 & 0.893 & 0.887 & \textbf{1.8 ms} \\ \hline
+Random Forest (100 Trees) & 90.20\% & 0.905 & 0.898 & 0.901 & 18.5 ms \\ \hline
+1D-CNN (Word + Char) & 92.80\% & 0.924 & 0.931 & 0.928 & 12.4 ms \\ \hline
+Bidirectional LSTM & 93.60\% & 0.932 & 0.940 & 0.936 & 28.6 ms \\ \hline
+\textbf{Proposed 5-Model Ensemble} & \textbf{94.85\%} & \textbf{0.946} & \textbf{0.951} & \textbf{0.949} & 34.2 ms \\ \hline
+\end{tabular}
+\end{table}
+
+As demonstrated in Table~\ref{tab:model_results}, while individual models exhibit varying strengths---Multinomial Naive Bayes achieving the fastest inference speed (1.8ms) and Bi-LSTM delivering the highest single-model sequential comprehension (93.60\% accuracy)---the proposed 5-Model Consensus Ensemble outperforms all individual classifiers, achieving a peak accuracy of \textbf{94.85\%} and an F1-score of \textbf{0.949}.
+
+\subsection{Latency and Response Time Benchmarks}
+Table~\ref{tab:latency_benchmarks} outlines the real-world latency profiles across different execution layers.
+
+\begin{table}[H]
+\centering
+\caption{System Latency Profile Across Execution Tiers}
+\label{tab:latency_benchmarks}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{5.5cm}|p{3.5cm}|p{5cm}|}
+\hline
+\textbf{Execution Tier} & \textbf{Average Latency} & \textbf{User Experience Impact} \\ \hline
+Keyboard Local Edge Check (Layer 1) & \textbf{2.1 milliseconds} & Completely instantaneous; zero typing lag. \\ \hline
+Vercel Serverless Gateway Overhead & 45.0 milliseconds & Seamless network handoff. \\ \hline
+Cloud Ensemble AI Inference (Layer 2) & 34.2 milliseconds & Parallel matrix execution. \\ \hline
+Total Cloud Round-Trip Time & \textbf{142.5 milliseconds} & Visual banner updates smoothly while typing. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Chapter Summary}
+This chapter presented a comprehensive empirical and functional validation of Offense-Guard. Unit tests confirmed algorithmic correctness, functional tests validated user and administrative workflows, and decision table evaluations proved complete resolution of Pakistani name false positives and animal slur edge cases. Finally, empirical benchmarks demonstrated that the 5-Model Consensus Ensemble achieved state-of-the-art accuracy of 94.85\% with a real-time cloud latency of only 142.5ms, validating the system's operational readiness.
+
+\chapter{Conclusion and future work}
+\thispagestyle{empty}
+\newpage
+\begin{spacing}{1.5}
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+% --- Centered chapter title, same size as normal chapter ---
+{\centering \Large \bfseries Chapter Overview \par}
+\vspace{1cm}
+
+% --- Chapter introduction text ---
+This final chapter synthesizes the primary findings, software engineering achievements, and technical contributions of the Offense-Guard project. It critically examines the operational limitations encountered during development and outlines prospective research and engineering trajectories for the future evolution of the platform.
+
+\end{spacing}
+
+\section{Conclusion}
+The proliferation of toxic online discourse, harassment, and cyber-bullying in regional languages represents one of the most critical societal and technological challenges of the contemporary digital era. While high-resource languages such as English benefit from mature, multi-billion-dollar automated moderation systems, low-resource and non-standardized linguistic environments---most notably Urdu and Roman Urdu---have remained largely unprotected and vulnerable to toxic exploitation.
+
+This project successfully designed, engineered, evaluated, and deployed \textbf{Offense-Guard}: a comprehensive, proactive, and context-aware artificial intelligence ecosystem tailored specifically for Urdu and Roman Urdu digital interactions. Over the course of the 8th semester, Offense-Guard achieved four major engineering milestones:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Transition from Reactive Moderation to Proactive Intervention:} Rather than relying on conventional post-publication censorship, Offense-Guard pioneers the integration of the \textbf{``ReThink''} behavioral paradigm into the mobile messaging lifecycle. By imposing psychological friction at the exact moment of text composition, the system empowers users to self-correct hostile expressions before they reach recipients.
+    \item \textbf{Universal Protection via Native Android Keyboard IME:} By implementing a custom Android System Keyboard using \texttt{InputMethodService}, Offense-Guard transcends the limitations of application-specific moderation bots. It provides universal, real-time protection across any messaging or social platform operating on the user's smartphone (including WhatsApp, Facebook Messenger, Instagram, and SMS) through an instantaneous 2-layer detection pipeline (0ms local edge scanning combined with asynchronous cloud verification).
+    \item \textbf{High-Accuracy 5-Model Consensus Ensemble:} By synthesizing calibrated Linear SVM, Multinomial Naive Bayes, Random Forest, 1D-CNN, and Bidirectional LSTM into a weighted voting engine, the system attained an overall classification accuracy of \textbf{94.85\%} and an F1-score of \textbf{0.949} on an aggregated corpus of 80,000+ bilingual samples.
+    \item \textbf{Cultural Disambiguation and False Positive Elimination:} Through the creation of the Hybrid Context Engine, Offense-Guard successfully overcame chronic lexical collision challenges in Pakistani online discourse. The engine preserves common Pakistani proper names (e.g., \textit{Imran}, \textit{Nawaz}, \textit{Ali}) while reliably intercepting nuanced and targeted animal metaphors (e.g., \textit{``tum janwar ho''}), achieving 100\% precision on evaluated edge cases.
+    \item \textbf{Production-Grade Cloud-Native Architecture:} The backend was transformed into a decoupled, modular architecture utilizing Flask Blueprints, hosted on Vercel Serverless with automatic scaling, authenticated via Firebase Authentication, and backed by a dual-persistence strategy comprising MongoDB Atlas and a local JSON fallback store for zero-downtime fault tolerance.
+\end{enumerate}
+
+In summary, Offense-Guard establishes a robust technological foundation that bridges the digital safety divide for over 230 million Urdu speakers worldwide.
+
+\section{System Limitations and Constraints}
+Despite its significant achievements, the current implementation exhibits certain operational limitations:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Edge Hardware Computational Bottlenecks:} Deep sequential neural architectures (Bi-LSTM and CNN) have significant memory and matrix multiplication overheads, precluding fully local edge neural inference on low-end smartphones. Consequently, deep sequence verification requires an active internet connection to query the Vercel serverless API.
+    \item \textbf{Linguistic Volatility and Obfuscation:} Roman Urdu evolves continuously through youth culture, regional dialects, and intentional leetspeak obfuscation (e.g., inserting symbols or alternating numbers to bypass filters). Out-of-vocabulary slang not represented in the training corpus requires continual retraining via the administrative feedback loop.
+    \item \textbf{Operating System Boundaries:} The native system keyboard is currently restricted to the Android ecosystem. Developing an equivalent iOS keyboard extension requires navigating Apple's distinct \texttt{UIInputViewController} memory and sandboxing constraints.
+\end{itemize}
+
+\section{Future Work and Research Horizons}
+To advance the capabilities of Offense-Guard, several promising research and development directions are identified:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{On-Device Quantized Transformer Models:} Fine-tuning multilingual pre-trained transformer representations (such as BERT \cite{ref13}, XLM-RoBERTa \cite{ref14}, and MuRIL) and compressing them via 8-bit integer quantization (INT8) using ONNX Runtime and TensorFlow Lite. This will allow full deep contextual neural inference to execute directly on the mobile device with sub-10ms latency without relying on cloud servers.
+    \item \textbf{Multimodal Content Moderation:} Expanding the detection engine to moderate non-textual communication channels prevalent in South Asia, including Urdu voice notes (via automatic speech recognition using models like OpenAI Whisper fine-tuned on Urdu dialects) and offensive image memes containing overlaid Nastaliq text (using Optical Character Recognition).
+    \item \textbf{Cross-Platform Expansion to Apple iOS:} Developing an iOS Custom Keyboard Extension in Swift to deliver parity across the complete smartphone ecosystem.
+    \item \textbf{Privacy-Preserving Federated Learning:} Implementing a decentralized federated learning protocol wherein local client models train on user-flagged misclassifications on-device and transmit only encrypted gradient updates to the central server, thereby improving model intelligence without compromising user keystroke privacy.
+    \item \textbf{Granular Multi-Class Emotion and Sarcasm Profiling:} Extending the classification taxonomy from four broad categories to granular sub-dimensions including sarcasm, political hostility, sexist intimidation, and religious blasphemy to provide tailored psycho-social interventions.
+\end{enumerate}
+
+\section{Concluding Remarks}
+Offense-Guard demonstrates that proactive, user-centric, and context-aware artificial intelligence can transform online safety in low-resource linguistic environments. By harmonizing system-level keyboard interception, psychological friction, and state-of-the-art ensemble modeling, this project provides a scalable, practical, and culturally resonant solution to foster healthier, more respectful digital communication across the Urdu-speaking community.
+
+\section{Chapter Summary}
+This concluding chapter summarized the major architectural, algorithmic, and empirical achievements of the Offense-Guard project. It reflected on the transformative impact of proactive keyboard-level intervention and 5-model consensus intelligence, articulated current computational and linguistic limitations, and outlined a roadmap for future advancements spanning on-device quantized transformers, multimodal moderation, iOS integration, and federated learning.
+
+\begin{thebibliography}{99}
+\vspace{-2cm}
+
+\bibitem{ref1}
+Sharif, H., \& Rahman, S. (2020). ``Deep Learning for Roman Urdu Offensive Language Detection.'' \textit{Proceedings of the 17th International Conference on Natural Language Processing (ICON)}, pp. 112--120.
+
+\bibitem{ref2}
+Hochreiter, S., \& Schmidhuber, J. (1997). ``Long Short-Term Memory.'' \textit{Neural Computation}, 9(8), pp. 1735--1780.
+
+\bibitem{ref3}
+Akhter, M. P., Zheng, J., Afzal, F., Lin, H., \& Riaz, S. (2021). ``Automated Detection of Abusive Language in Roman Urdu Using Deep Learning Convolutional and Recurrent Models.'' \textit{IEEE Access}, 9, pp. 64805--64816.
+
+\bibitem{ref4}
+Cortes, C., \& Vapnik, V. (1995). ``Support-Vector Networks.'' \textit{Machine Learning}, 20(3), pp. 273--297.
+
+\bibitem{ref5}
+Mikolov, T., Chen, K., Corrado, G., \& Dean, J. (2013). ``Efficient Estimation of Word Representations in Vector Space.'' \textit{arXiv preprint arXiv:1301.3781}.
+
+\bibitem{ref6}
+Meta Platforms, Inc. (2023). ``React Native: A framework for building native apps using React.'' Available at: \texttt{https://reactnative.dev/}.
+
+\bibitem{ref7}
+Pallets Projects. (2023). ``Flask: A lightweight WSGI web application framework.'' Available at: \texttt{https://flask.palletsprojects.com/}.
+
+\bibitem{ref8}
+MongoDB Inc. (2023). ``MongoDB Atlas Multi-Cloud Developer Data Platform.'' Available at: \texttt{https://www.mongodb.com/atlas}.
+
+\bibitem{ref9}
+Pedregosa, F., et al. (2011). ``Scikit-learn: Machine Learning in Python.'' \textit{Journal of Machine Learning Research}, 12, pp. 2825--2830.
+
+\bibitem{ref10}
+Abadi, M., et al. (2016). ``TensorFlow: A System for Large-Scale Machine Learning.'' \textit{12th USENIX Symposium on Operating Systems Design and Implementation (OSDI)}, pp. 265--283.
+
+\bibitem{ref11}
+Davidson, T., Warmsley, D., Macy, M., \& Weber, I. (2017). ``Automated Hate Speech Detection and the Problem of Offensive Language.'' \textit{Proceedings of the International AAAI Conference on Web and Social Media (ICWSM)}, 11(1), pp. 512--515.
+
+\bibitem{ref12}
+Prabhu, T. (2015). ``Rethink: An Effective Approach to Prevent Cyberbullying.'' \textit{Global Google Science Fair Project Repository}.
+
+\bibitem{ref13}
+Devlin, J., Chang, M. W., Lee, K., \& Toutanova, K. (2019). ``BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.'' \textit{Proceedings of NAACL-HLT}, pp. 4171--4186.
+
+\bibitem{ref14}
+Conneau, A., et al. (2020). ``Unsupervised Cross-lingual Representation Learning at Scale.'' \textit{Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics (ACL)}, pp. 8440--8451.
+
+\bibitem{ref15}
+Google LLC / Android Open Source Project. (2023). ``InputMethodService Reference Guide.'' Available at: \texttt{https://developer.android.com/reference/android/inputmethodservice/InputMethodService}.
+
+\bibitem{ref16}
+Vercel Inc. (2023). ``Vercel Serverless Functions and Edge Infrastructure Documentation.'' Available at: \texttt{https://vercel.com/docs/functions}.
+
+\bibitem{ref17}
+Google LLC. (2023). ``Firebase Authentication Documentation.'' Available at: \texttt{https://firebase.google.com/docs/auth}.
+
+\end{thebibliography}
+
+\end{document}
