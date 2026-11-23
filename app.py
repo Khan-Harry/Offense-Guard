@@ -1488,6 +1488,8 @@ def predict():
         # 2. Check personal user override (exact match, takes priority over ML)
         current_user = get_optional_user()
         username = current_user.get('username', 'anonymous') if (current_user and isinstance(current_user, dict)) else 'anonymous'
+        email = current_user.get('email', '').strip().lower() if (current_user and isinstance(current_user, dict)) else ''
+        user_id = str(current_user.get('user_id', '')).strip() if (current_user and isinstance(current_user, dict)) else ''
 
         personal_override = get_personal_override(username, text_lower)
         if personal_override:
@@ -1510,6 +1512,10 @@ def predict():
                 try:
                     log_item = result_override.copy()
                     log_item['username'] = username
+                    if email:
+                        log_item['email'] = email
+                    if user_id:
+                        log_item['user_id'] = user_id
                     predictions_col.insert_one(log_item)
                 except Exception:
                     pass
@@ -1523,6 +1529,10 @@ def predict():
             try:
                 log_item = result.copy()
                 log_item['username'] = username
+                if email:
+                    log_item['email'] = email
+                if user_id:
+                    log_item['user_id'] = user_id
                 predictions_col.insert_one(log_item)
             except Exception as dbe:
                 print(f"Failed to log prediction to DB: {dbe}")
@@ -1548,21 +1558,47 @@ def health():
 
 @app.route('/stats', methods=['GET'])
 def stats():
-    """Get usage statistics and sidebar history (works seamlessly with or without token)"""
+    """Get usage statistics and sidebar history (strictly scoped to the authenticated user)"""
     try:
         current_user = get_optional_user()
         raw_history = []
         total = 0
         offensive = 0
         
+        # Unauthenticated / guest requests get an empty history list (zero cross-account leakage)
+        if not current_user or not isinstance(current_user, dict):
+            return jsonify({
+                'total_predictions': 0,
+                'offensive_count': 0,
+                'status': 'active',
+                'history': []
+            }), 200
+
+        email = current_user.get('email', '').strip().lower()
+        user_id = str(current_user.get('user_id', '')).strip()
+        uname = current_user.get('username', '').strip()
+
+        # Build user-specific query filter
+        user_conditions = []
+        if user_id:
+            user_conditions.append({'user_id': user_id})
+        if email:
+            user_conditions.append({'email': email})
+        if uname and not user_conditions:
+            user_conditions.append({'username': uname})
+
+        if not user_conditions:
+            return jsonify({
+                'total_predictions': 0,
+                'offensive_count': 0,
+                'status': 'active',
+                'history': []
+            }), 200
+
+        query = {'$or': user_conditions} if len(user_conditions) > 1 else user_conditions[0]
+        
         if predictions_col is not None:
             try:
-                if current_user is not None and isinstance(current_user, dict):
-                    uname = current_user.get('username')
-                    query = {'username': uname}
-                else:
-                    query = {'$or': [{'username': 'anonymous'}, {'username': {'$exists': False}}]}
-                
                 total = predictions_col.count_documents(query)
                 offensive = predictions_col.count_documents({'$and': [query, {'prediction': 'offensive'}]})
                 raw_history = list(predictions_col.find(query).sort('timestamp', -1).limit(50))
@@ -1601,25 +1637,40 @@ def stats():
 def delete_history_item():
     try:
         current_user = get_optional_user()
+        if not current_user or not isinstance(current_user, dict):
+            return jsonify({'error': 'Unauthorized'}), 401
+            
         data = request.get_json()
         if not data or not data.get('timestamp'):
             return jsonify({'error': 'Timestamp required'}), 400
             
         target_timestamp = str(data.get('timestamp')).strip()
+        email = current_user.get('email', '').strip().lower()
+        user_id = str(current_user.get('user_id', '')).strip()
+        uname = current_user.get('username', '').strip()
+
+        user_conditions = []
+        if user_id:
+            user_conditions.append({'user_id': user_id})
+        if email:
+            user_conditions.append({'email': email})
+        if uname and not user_conditions:
+            user_conditions.append({'username': uname})
+
+        if not user_conditions:
+            return jsonify({'error': 'Invalid user'}), 400
+
+        user_match = {'$or': user_conditions} if len(user_conditions) > 1 else user_conditions[0]
+        del_filter = {
+            '$and': [
+                {'timestamp': target_timestamp},
+                user_match
+            ]
+        }
         
         if predictions_col is not None:
-            if current_user is not None and isinstance(current_user, dict):
-                uname = current_user.get('username')
-                # Delete by matching timestamp for this user or legacy unassigned entries
-                del_res = predictions_col.delete_one({
-                    '$or': [{'username': uname}, {'username': 'anonymous'}, {'username': {'$exists': False}}],
-                    'timestamp': target_timestamp
-                })
-            else:
-                # If no token, delete matching timestamp
-                del_res = predictions_col.delete_one({'timestamp': target_timestamp})
-            
-            print(f"Deleted history item for timestamp {target_timestamp}: deleted_count={del_res.deleted_count}")
+            del_res = predictions_col.delete_one(del_filter)
+            print(f"Deleted history item for {email or uname}: count={del_res.deleted_count}")
             
         return jsonify({'message': 'Item deleted successfully'})
     except Exception as e:
@@ -1630,13 +1681,30 @@ def delete_history_item():
 def clear_history():
     try:
         current_user = get_optional_user()
+        if not current_user or not isinstance(current_user, dict):
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        email = current_user.get('email', '').strip().lower()
+        user_id = str(current_user.get('user_id', '')).strip()
+        uname = current_user.get('username', '').strip()
+
+        user_conditions = []
+        if user_id:
+            user_conditions.append({'user_id': user_id})
+        if email:
+            user_conditions.append({'email': email})
+        if uname and not user_conditions:
+            user_conditions.append({'username': uname})
+
+        if not user_conditions:
+            return jsonify({'error': 'Invalid user'}), 400
+
+        user_match = {'$or': user_conditions} if len(user_conditions) > 1 else user_conditions[0]
+        
         if predictions_col is not None:
-            if current_user is not None and isinstance(current_user, dict):
-                predictions_col.delete_many({'username': current_user.get('username')})
-            else:
-                predictions_col.delete_many({
-                    '$or': [{'username': 'anonymous'}, {'username': {'$exists': False}}]
-                })
+            del_res = predictions_col.delete_many(user_match)
+            print(f"Cleared history for {email or uname}: deleted={del_res.deleted_count}")
+
         return jsonify({'message': 'History cleared successfully'})
     except Exception as e:
         print(f"Clear history error: {e}")
