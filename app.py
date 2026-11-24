@@ -61,6 +61,13 @@ class LocalCursor:
     def __getitem__(self, index):
         return self._docs[index]
 
+class LocalDeleteResult:
+    def __init__(self, count):
+        self.deleted_count = count
+        self.acknowledged = True
+    def __bool__(self):
+        return self.deleted_count > 0
+
 class LocalCollection:
     def __init__(self, name, initial_docs=None):
         self.name = name
@@ -165,16 +172,17 @@ class LocalCollection:
             if self._matches(doc, query):
                 del self.docs[i]
                 self._save()
-                return True
-        return False
+                return LocalDeleteResult(1)
+        return LocalDeleteResult(0)
 
     def delete_many(self, query):
         self._load()
         orig_len = len(self.docs)
         self.docs = [d for d in self.docs if not self._matches(d, query)]
-        if len(self.docs) != orig_len:
+        deleted_cnt = orig_len - len(self.docs)
+        if deleted_cnt > 0:
             self._save()
-        return True
+        return LocalDeleteResult(deleted_cnt)
 
 # Pre-seeded test & demo accounts
 PRESEEDED_USERS = [
@@ -851,15 +859,26 @@ def get_optional_user():
                 unverified.get('admin', False) or
                 unverified.get('is_admin', False)
             )
-            return {'username': username, 'email': email, 'is_admin': is_admin}
+            return {
+                'username': username, 
+                'email': email, 
+                'user_id': unverified.get('user_id', unverified.get('sub', '')),
+                'is_admin': is_admin
+            }
         
         # Legacy Flask JWT
         data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
         if users_col is not None:
             user = users_col.find_one({'username': data['username']})
             if user:
+                if 'user_id' not in user:
+                    user['user_id'] = str(user.get('_id', ''))
                 return user
-        return {'username': data['username'], 'is_admin': data.get('is_admin', False)}
+        return {
+            'username': data['username'], 
+            'user_id': data.get('user_id', ''),
+            'is_admin': data.get('is_admin', False)
+        }
     except Exception:
         return None
 
@@ -1710,7 +1729,7 @@ def delete_history_item():
             user_conditions.append({'user_id': user_id})
         if email:
             user_conditions.append({'email': email})
-        if uname and not user_conditions:
+        if uname:
             user_conditions.append({'username': uname})
 
         if not user_conditions:
@@ -1726,7 +1745,8 @@ def delete_history_item():
         
         if predictions_col is not None:
             del_res = predictions_col.delete_one(del_filter)
-            print(f"Deleted history item for {email or uname}: count={del_res.deleted_count}")
+            del_cnt = getattr(del_res, 'deleted_count', 1 if del_res else 0)
+            print(f"Deleted history item for {email or uname}: count={del_cnt}")
             
         return jsonify({'message': 'Item deleted successfully'})
     except Exception as e:
@@ -1749,7 +1769,7 @@ def clear_history():
             user_conditions.append({'user_id': user_id})
         if email:
             user_conditions.append({'email': email})
-        if uname and not user_conditions:
+        if uname:
             user_conditions.append({'username': uname})
 
         if not user_conditions:
@@ -1759,7 +1779,8 @@ def clear_history():
         
         if predictions_col is not None:
             del_res = predictions_col.delete_many(user_match)
-            print(f"Cleared history for {email or uname}: deleted={del_res.deleted_count}")
+            del_cnt = getattr(del_res, 'deleted_count', 0)
+            print(f"Cleared history for {email or uname}: deleted={del_cnt}")
 
         return jsonify({'message': 'History cleared successfully'})
     except Exception as e:
