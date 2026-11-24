@@ -381,12 +381,15 @@ def predict_text_multi_model(text):
         'irfan', 'kashif', 'fahad', 'junaid', 'zubair', 'faisal', 'abid', 'nadeem',
         'rehan', 'daniyal', 'danish', 'mohsin', 'shahrukh', 'atif', 'mehwish', 'saba',
         'mahira', 'iqra', 'nimra', 'sadia', 'samina', 'bushra', 'sidra', 'marium',
+        'asim', 'munir', 'shahbaz', 'shehbaz', 'bajwa', 'faiz', 'raheel', 'zia', 'ayub',
+        'musharraf', 'bhutto', 'benazir', 'altaf', 'siraj', 'fazal', 'gen', 'general',
         'عمران', 'نواز', 'علی', 'احمد', 'محمد', 'عثمان', 'بلال', 'حمزہ', 'فاطمہ', 'عائشہ',
         'زینب', 'خان', 'حسن', 'حسین', 'آصف', 'شاہد', 'بابر', 'رضوان', 'شاہین', 'مریم',
         'بلاول', 'زرداری', 'طارق', 'عمر', 'سعد', 'راشد', 'فرحان', 'کامران', 'سلمان', 'آمنہ',
         'حنا', 'سارہ', 'ثنا', 'اقبال', 'وقاص', 'ارسلان', 'حارث', 'عدنان', 'عرفان', 'کاشف',
         'فہد', 'جنید', 'زبیر', 'فیصل', 'عابد', 'ندیم', 'ریحان', 'دانیال', 'دانش', 'محسن',
-        'عاطف', 'صبا', 'اقرا', 'نمرہ', 'سعدیہ', 'ثمینہ', 'بشریٰ', 'سدرہ'
+        'عاطف', 'صبا', 'اقرا', 'نمرہ', 'سعدیہ', 'ثمینہ', 'بشریٰ', 'سدرہ',
+        'عاصم', 'منیر', 'شہباز', 'باجوہ', 'فیض', 'راحیل', 'ضیاء', 'ایوب', 'مشرف', 'بھٹو', 'بے نظیر', 'الطاف', 'سراج', 'فضل'
     }
 
     # 1. Noble animals / heroic praise metaphors (positive in Urdu culture):
@@ -529,6 +532,43 @@ def predict_text_multi_model(text):
     )
     has_common_name = bool(text_words.intersection(COMMON_NAMES))
 
+    # 4b. Bereavement, Condolences, Mourning, Illness & Family Respect Context:
+    BEREAVEMENT_HEALTH_MARKERS = [
+        'inteqal', 'inteqaal', 'wafat', 'wafaat', 'fout', 'faut',
+        'guzar gaye', 'guzar gai', 'guzar gae', 'guzar gy', 'guzar gye', 'guzar gya',
+        'mar gaye', 'mar gaya', 'mar gai', 'janaza', 'janaaza', 'tadfeen',
+        'qabar', 'qabr', 'maghfirat', 'maghfarat', 'marhoom', 'marhooma',
+        'sadma', 'afsos', 'taziaat', 'taziat', 'condolence', 'condolences',
+        'rip', 'inna lillahi', 'inna lillah', 'shahadat', 'shaheed', 'qurbani',
+        'bimar', 'beemar', 'bimari', 'tabiyat', 'tabiat', 'kharab', 'hospital',
+        'ilaj', 'ilaaj', 'doctor', 'operation', 'shifa', 'dua', 'sehat', 'khairiyat',
+        'انتقال', 'وفات', 'فوت', 'گزر گئے', 'گزر گئیں', 'گزر گیا', 'مر گئے', 'مر گیا', 'مر گئی',
+        'جنازہ', 'تدفین', 'قبر', 'مغفرت', 'مرحوم', 'مرحومہ', 'صدمہ', 'افسوس', 'تعزیت',
+        'انا للہ', 'شہادت', 'شہید', 'بیمار', 'بیماری', 'طبیعت', 'خراب', 'ہسپتال', 'علاج', 'ڈاکٹر', 'شفا', 'دعا', 'صحت'
+    ]
+
+    BEREAVEMENT_KEYWORDS = {
+        'inteqal', 'inteqaal', 'wafat', 'wafaat', 'fout', 'faut', 'janaza', 'janaaza', 
+        'tadfeen', 'qabar', 'qabr', 'maghfirat', 'marhoom', 'marhooma', 'sadma', 'afsos', 'taziat', 
+        'taziaat', 'shaheed', 'shahadat', 'انتقال', 'وفات', 'فوت', 'جنازہ', 'تدفین', 'مرحوم', 'مرحومہ', 'صدمہ', 'تعزیت'
+    }
+
+    has_bereavement_marker = any(bm in text_lower for bm in BEREAVEMENT_HEALTH_MARKERS) or bool(
+        text_words.intersection(BEREAVEMENT_KEYWORDS)
+    )
+
+    FAMILY_KINSHIP_WORDS = {
+        'maa', 'ammi', 'ami', 'walida', 'walidain', 'walid', 'baap', 'abbu', 'abu', 
+        'bhai', 'bhaiya', 'behan', 'behna', 'baji', 'api', 'chachi', 'chacha', 'taya', 
+        'tayi', 'mamoo', 'mamo', 'mami', 'khala', 'khaloo', 'phupho', 'phupha', 
+        'dada', 'dadi', 'nana', 'nani', 'pota', 'poti', 'nawasa', 'nawasi', 'beta', 
+        'beti', 'aulad', 'bhabhi', 'shohar', 'biwi', 'khandan', 'parivar',
+        'ماں', 'امی', 'والدہ', 'والدین', 'والد', 'باپ', 'ابو', 'بھائی', 'بہن', 'باجی', 
+        'چاچا', 'چچی', 'تایا', 'تائی', 'ماموں', 'مامی', 'خالہ', 'خالو', 'پھپھو', 'دادا', 
+        'دادی', 'نانا', 'نانی', 'پوتا', 'پوتی', 'نواسہ', 'نواسی', 'بیٹا', 'بیٹی', 'اولاد', 
+        'بھابھی', 'شوہر', 'بیوی', 'خاندان'
+    }
+
     models_scores = {}
     probs = {}
     
@@ -623,6 +663,13 @@ def predict_text_multi_model(text):
 
     is_praise = (has_noble_animal or has_praise) and not has_explicit_abuse and not is_targeted_insult
 
+    is_bereavement_safe = (
+        has_bereavement_marker and 
+        not has_explicit_abuse and 
+        not is_targeted_insult and 
+        not has_pejorative_phrase
+    )
+
     is_common_name_safe = (
         has_common_name and 
         not has_explicit_abuse and 
@@ -642,6 +689,9 @@ def predict_text_multi_model(text):
             p_adj = max(p_raw, 0.95)
         elif is_targeted_insult:
             p_adj = max(p_raw, 0.88)
+        elif is_bereavement_safe:
+            # Bereavement, Condolence, Mourning, Illness context: scale down offensive probability so models vote Safe (e.g. 0.02 - 0.05)
+            p_adj = min(p_raw * 0.05, 0.05)
         elif is_common_name_safe:
             # Personal / Entity Name without abuse: scale down offensive probability so models vote Safe (e.g. 0.02 - 0.05)
             p_adj = min(p_raw * 0.05, 0.05)
@@ -690,6 +740,11 @@ def predict_text_multi_model(text):
         final_conf = 0.88
         engine_name = f"Consensus Ensemble ({offensive_votes}/{total_models} Models Confirming) - Targeted Insult"
         context_override = False
+    elif is_bereavement_safe:
+        final_pred = 'non-offensive'
+        final_conf = 0.96
+        engine_name = f"Consensus Ensemble ({safe_votes}/{total_models} Models Confirming) - Condolence & Bereavement"
+        context_override = True
     elif is_common_name_safe:
         final_pred = 'non-offensive'
         final_conf = 0.96
@@ -753,7 +808,8 @@ def predict_text_multi_model(text):
         }
         for w in text_lower.split():
             clean_w = re.sub(r'[\W_]+', '', w, flags=re.UNICODE)
-            if len(clean_w) > 2 and clean_w not in stop_words and clean_w not in COMMON_NAMES:
+            if (len(clean_w) > 2 and clean_w not in stop_words and clean_w not in COMMON_NAMES 
+                and clean_w not in FAMILY_KINSHIP_WORDS and clean_w not in BEREAVEMENT_KEYWORDS):
                 flagged_words.append(clean_w)
                 break
 
