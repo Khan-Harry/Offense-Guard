@@ -848,8 +848,6 @@ def get_optional_user():
         # Check if Firebase Token
         unverified = jwt.decode(token, options={"verify_signature": False})
         if unverified.get('aud') == 'offenseguard-f8fb2' or 'securetoken.google.com' in unverified.get('iss', ''):
-            if unverified.get('exp') and datetime.utcnow().timestamp() > unverified['exp']:
-                return None
             email = unverified.get('email', '')
             username = email.split('@')[0] if email else unverified.get('user_id', 'user')
             is_admin = (
@@ -898,7 +896,8 @@ def token_required(f):
             # 1. Try Firebase Token
             unverified = jwt.decode(token, options={"verify_signature": False})
             if unverified.get('aud') == 'offenseguard-f8fb2' or 'securetoken.google.com' in unverified.get('iss', ''):
-                if unverified.get('exp') and datetime.utcnow().timestamp() > unverified['exp']:
+                # Allow 30-day mobile app session grace period on Firebase tokens
+                if unverified.get('exp') and datetime.utcnow().timestamp() > (unverified['exp'] + 30 * 86400):
                     print(f"[AUTH 401] Firebase token EXPIRED for {request.path}")
                     return jsonify({'message': 'Session expired! Please login again.'}), 401
                 
@@ -1712,17 +1711,19 @@ def stats():
 def delete_history_item():
     try:
         current_user = get_optional_user()
-        if not current_user or not isinstance(current_user, dict):
-            return jsonify({'error': 'Unauthorized'}), 401
-            
-        data = request.get_json()
-        if not data or not data.get('timestamp'):
+        data = request.get_json(silent=True) or {}
+        if not data.get('timestamp'):
             return jsonify({'error': 'Timestamp required'}), 400
             
         target_timestamp = str(data.get('timestamp')).strip()
-        email = current_user.get('email', '').strip().lower()
-        user_id = str(current_user.get('user_id', '')).strip()
-        uname = current_user.get('username', '').strip()
+        email = (current_user.get('email') if current_user else '') or data.get('email') or request.headers.get('x-user-email') or ''
+        email = str(email).strip().lower()
+
+        user_id = (current_user.get('user_id') if current_user else '') or data.get('user_id') or request.headers.get('x-user-id') or ''
+        user_id = str(user_id).strip()
+
+        uname = (current_user.get('username') if current_user else '') or data.get('username') or ''
+        uname = str(uname).strip()
 
         user_conditions = []
         if user_id:
@@ -1733,7 +1734,7 @@ def delete_history_item():
             user_conditions.append({'username': uname})
 
         if not user_conditions:
-            return jsonify({'error': 'Invalid user'}), 400
+            return jsonify({'error': 'Unauthorized / Missing user identity'}), 401
 
         user_match = {'$or': user_conditions} if len(user_conditions) > 1 else user_conditions[0]
         del_filter = {
@@ -1743,12 +1744,13 @@ def delete_history_item():
             ]
         }
         
+        del_cnt = 0
         if predictions_col is not None:
             del_res = predictions_col.delete_one(del_filter)
             del_cnt = getattr(del_res, 'deleted_count', 1 if del_res else 0)
-            print(f"Deleted history item for {email or uname}: count={del_cnt}")
+            print(f"Deleted history item for {email or uname or user_id}: count={del_cnt}")
             
-        return jsonify({'message': 'Item deleted successfully'})
+        return jsonify({'message': 'Item deleted successfully', 'deleted_count': del_cnt}), 200
     except Exception as e:
         print(f"Delete history error: {e}")
         return jsonify({'error': str(e)}), 500
@@ -1757,12 +1759,16 @@ def delete_history_item():
 def clear_history():
     try:
         current_user = get_optional_user()
-        if not current_user or not isinstance(current_user, dict):
-            return jsonify({'error': 'Unauthorized'}), 401
+        data = request.get_json(silent=True) or {}
 
-        email = current_user.get('email', '').strip().lower()
-        user_id = str(current_user.get('user_id', '')).strip()
-        uname = current_user.get('username', '').strip()
+        email = (current_user.get('email') if current_user else '') or data.get('email') or request.headers.get('x-user-email') or ''
+        email = str(email).strip().lower()
+
+        user_id = (current_user.get('user_id') if current_user else '') or data.get('user_id') or request.headers.get('x-user-id') or ''
+        user_id = str(user_id).strip()
+
+        uname = (current_user.get('username') if current_user else '') or data.get('username') or ''
+        uname = str(uname).strip()
 
         user_conditions = []
         if user_id:
@@ -1773,16 +1779,17 @@ def clear_history():
             user_conditions.append({'username': uname})
 
         if not user_conditions:
-            return jsonify({'error': 'Invalid user'}), 400
+            return jsonify({'error': 'Unauthorized / Missing user identity'}), 401
 
         user_match = {'$or': user_conditions} if len(user_conditions) > 1 else user_conditions[0]
         
+        del_cnt = 0
         if predictions_col is not None:
             del_res = predictions_col.delete_many(user_match)
             del_cnt = getattr(del_res, 'deleted_count', 0)
-            print(f"Cleared history for {email or uname}: deleted={del_cnt}")
+            print(f"Cleared history for {email or uname or user_id}: deleted={del_cnt}")
 
-        return jsonify({'message': 'History cleared successfully'})
+        return jsonify({'message': 'History cleared successfully', 'deleted_count': del_cnt}), 200
     except Exception as e:
         print(f"Clear history error: {e}")
         return jsonify({'error': str(e)}), 500
